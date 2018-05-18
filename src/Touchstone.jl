@@ -27,6 +27,7 @@ const default_format = "MA"
 
 const default_resistance = 50.0
 
+import Base: ==, ≈
 struct Options
     unit::Float64
     parameter::Symbol
@@ -34,36 +35,39 @@ struct Options
     resistance::Float64
 end
 Options() = Options( units[ default_units ], parameters[ default_parameter ], formats[ default_format ], default_resistance )
-function equ( o1, o2 :: Options )
-    isapprox( o1.unit, o2.unit ) &&
+function ==( o1, o2 :: Options )
+    o1.unit ≈ o2.unit &&
     o1.parameter == o2.parameter &&
     o1.format == o2.format &&
-    isapprox( o1.resistance, o2.resistance )
+    o1.resistance ≈ o2.resistance
 end
-
-struct Comments
-    lines::Vector{String}
-end
-Comments() = Comments( [] )
-equ( c1, c2 :: Comments ) = c1.lines == c2.lines
 
 struct DataPoint
     frequency::Float64
-    parameter::Matrix{Float64}
+    parameter::Matrix{Complex{Float64}}
 end
-
-struct Data
-    points::Vector{DataPoint}
+function ==( dp1, dp2 :: DataPoint )
+    dp1.frequency == dp2.frequency &&
+    dp1.parameter == dp2.parameter
+end
+function ≈( dp1, dp2 :: DataPoint )
+    dp1.frequency ≈ dp2.frequency &&
+    dp1.parameter ≈ dp2.parameter
 end
 
 struct TS
+    data::Vector{DataPoint}
     options::Options
-    comments::Comments
+    comments::Vector{String}
 end
-TS() = TS( Options(), Comments() )
-function equ( ts1, ts2 :: TS )
-    equ( ts1.options, ts2.options ) &&
-    equ( ts1.comments, ts2.comments )
+TS( data = Vector{DataPoint}(), options::Options = Options(), comments = Vector{String}() ) = TS( data, options, comments )
+TS( options::Options, comments = Vector{String}() ) = TS( Vector{DataPoint}(), options, comments )
+
+function ==( ts1, ts2 :: TS )
+    ts1.data == ts2.data &&
+    ts1.options == ts2.options &&
+    ts1.comments == ts2.comments &&
+    ts1.data == ts2.data
 end
 
 is_comment_line( line ) = length( line ) > 0 && line[ 1 ] == '!'
@@ -72,19 +76,19 @@ parse_comment_line( line ) = line[ 2:end ]
 
 is_option_line( line ) = length( line ) > 0 && line[ 1 ] == '#'
 
-is_frequency_unit_option( option ) = haskey( units, option )
+is_frequency_unit_option( option ) = haskey( units,  uppercase( option ) )
 
-parse_frequency_unit_option( option ) = units[ option ]
+parse_frequency_unit_option( option ) = units[ uppercase( option ) ]
 
-is_parameter_option( option ) = haskey( parameters, option )
+is_parameter_option( option ) = haskey( parameters, uppercase( option ) )
 
-parse_parameter_option( option ) = parameters[ option ]
+parse_parameter_option( option ) = parameters[ uppercase( option ) ]
 
-is_format_option( option ) = haskey( formats, option )
+is_format_option( option ) = haskey( formats, uppercase( option ) )
 
-parse_format_option( option ) = formats[ option ]
+parse_format_option( option ) = formats[ uppercase( option ) ]
 
-is_resistance_option( option ) = option == "R"
+is_resistance_option( option ) = uppercase( option ) == "R"
 
 parse_resistance_option( option ) = parse( Float64, option )
 
@@ -124,10 +128,56 @@ function parse_option_line( line )
     Options( unit, parameter, format, resistance )
 end
 
-function parse_touchstone_file( stream::IO )
+ma2comp( m, a ) =  m * cis( deg2rad( a ) )
+
+da2comp( d, a ) = ma2comp( 10 ^ ( d / 20 ), a )
+
+function parse_one_port_data( line, options = Options() )
+    format = options.format
+    values = map( s -> parse( Float64, s ), split( line ) )
+    freq = values[ 1 ]  * options.unit
+    if format == :RealImaginary
+        data = complex( values[ 2 ],values[ 3 ] )
+    elseif format == :MagnitudeAngle
+        data = ma2comp( values[ 2 ], values[ 3 ] )
+    elseif format == :DecibelAngle
+        data = da2comp( values[ 2 ], values[ 3 ] )
+    else
+        throw( error( "wrong format!" ) )
+    end
+    DataPoint( freq, fill( data, 1, 1 ) )
+end
+
+function parse_two_port_data( line, options = Options() )
+    format = options.format
+    values = map( s -> parse( Float64, s ), split( line ) )
+    freq = values[ 1 ]  * options.unit
+    if format == :RealImaginary
+        data11 = complex( values[ 2 ],values[ 3 ] )
+        data21 = complex( values[ 4 ],values[ 5 ] )
+        data12 = complex( values[ 6 ],values[ 7 ] )
+        data22 = complex( values[ 8 ],values[ 9 ] )
+    elseif format == :MagnitudeAngle
+        data11 = ma2comp( values[ 2 ],values[ 3 ] )
+        data21 = ma2comp( values[ 4 ],values[ 5 ] )
+        data12 = ma2comp( values[ 6 ],values[ 7 ] )
+        data22 = ma2comp( values[ 8 ],values[ 9 ] )
+    elseif format == :DecibelAngle
+        data11 = da2comp( values[ 2 ],values[ 3 ] )
+        data21 = da2comp( values[ 4 ],values[ 5 ] )
+        data12 = da2comp( values[ 6 ],values[ 7 ] )
+        data22 = da2comp( values[ 8 ],values[ 9 ] )
+    else
+        throw( error( "wrong format!" ) )
+    end
+    DataPoint( freq, [ data11 data12; data21 data22 ] )
+end
+
+function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
     options = Options()
     first_option_line = true
-    comments = []
+    comments = Vector{String}()
+    data = Vector{DataPoint}()
     for line in eachline( stream )
         if is_empy_line( line )
             ;# nothing
@@ -138,10 +188,24 @@ function parse_touchstone_file( stream::IO )
         elseif first_option_line && is_option_line( line )
             options = parse_option_line( line )
             first_option_line = false
+        elseif ports == 1
+            push!( data, parse_one_port_data( line, options ) )
+        elseif ports == 2
+            push!( data, parse_two_port_data( line, options ) )
         end
     end
-    TS( options, Comments( comments ) )
+    TS( data, options, comments )
 end
-parse_touchstone_file( in::String ) = parse_touchstone_file( IOBuffer( in ) )
+parse_touchstone_string( in::String, ports::Integer = 1 ) = parse_touchstone_stream( IOBuffer( in ), ports )
+parse_touchstone_file( filename::String, ports::Integer = 1 ) = parse_touchstone_stream( open( filename ), ports )
+
+
+freqs( ts::TS ) = map( dp -> dp.frequency, ts.data )
+params( ts::TS, p1 = 1, p2 = 1 ) = map( dp -> dp.parameter[ p1, p2 ], ts.data )
+mags( ts::TS, p1 = 1, p2 = 1 ) = map( abs, params( ts, p1, p2 ) )
+angs( ts::TS, p1 = 1, p2 = 1 ) = map( p -> rad2deg( angle( p ) ), params( ts, p1, p2 ) )
+reals( ts::TS, p1 = 1, p2 = 1 ) = map( real, params( ts, p1, p2 ) )
+imags( ts::TS, p1 = 1, p2 = 1 ) = map( imag, params( ts, p1, p2 ) )
+
 
 end
