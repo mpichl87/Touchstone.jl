@@ -168,6 +168,10 @@ ts = TS.parse_touchstone_string( """
 @test TS.imags( ts, 2, 2 ) ≈ [ 1.22, 2.22 ]
 
 
-# ts = TS.parse_touchstone_file( "test/Test_1_6.S2P", 2 )
-# TS.freqs( ts )
-# TS.mags( ts, 2, 1 )
+ts = TS.parse_touchstone_file( "test/Test_1_6.S2P", 2 )
+f = TS.freqs( ts )
+s21 = TS.dBmags( ts, 2, 1 )
+
+using Plots
+
+plot( f, s21 )

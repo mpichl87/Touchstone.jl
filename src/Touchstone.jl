@@ -173,6 +173,7 @@ function parse_two_port_data( line, options = Options() )
     DataPoint( freq, [ data11 data12; data21 data22 ] )
 end
 
+export parse_touchstone_stream
 function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
     options = Options()
     first_option_line = true
@@ -196,15 +197,24 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
     end
     TS( data, options, comments )
 end
+export parse_touchstone_string
 parse_touchstone_string( in::String, ports::Integer = 1 ) = parse_touchstone_stream( IOBuffer( in ), ports )
+export parse_touchstone_file
 parse_touchstone_file( filename::String, ports::Integer = 1 ) = parse_touchstone_stream( open( filename ), ports )
 
-
+export freqs
 freqs( ts::TS ) = map( dp -> dp.frequency, ts.data )
+export params
 params( ts::TS, p1 = 1, p2 = 1 ) = map( dp -> dp.parameter[ p1, p2 ], ts.data )
+export mags
 mags( ts::TS, p1 = 1, p2 = 1 ) = map( abs, params( ts, p1, p2 ) )
+export dBmags
+dBmags( ts::TS, p1 = 1, p2 = 1 ) = map( x -> 20log10( abs( x ) ), params( ts, p1, p2 ) )
+export angs
 angs( ts::TS, p1 = 1, p2 = 1 ) = map( p -> rad2deg( angle( p ) ), params( ts, p1, p2 ) )
+export reals
 reals( ts::TS, p1 = 1, p2 = 1 ) = map( real, params( ts, p1, p2 ) )
+export imags
 imags( ts::TS, p1 = 1, p2 = 1 ) = map( imag, params( ts, p1, p2 ) )
 
 
