@@ -1,4 +1,3 @@
-__precompile__()
 module Touchstone
 
 const units = Dict{ String, Float64 }(
@@ -9,7 +8,7 @@ const units = Dict{ String, Float64 }(
 )
 const default_units = "GHZ"
 
-const parameters = Dict{ String, String }(
+const parameters = Dict{ String, Symbol }(
     "S" => :ScatteringParameters,
     "Y" => :AdmittanceParameters,
     "Z" => :ImpedanceParameters,
@@ -18,7 +17,7 @@ const parameters = Dict{ String, String }(
 )
 const default_parameter = "S"
 
-const formats = Dict{ String, String }(
+const formats = Dict{ String, Symbol }(
     "DB" => :DecibelAngle,
     "MA" => :MagnitudeAngle,
     "RI" => :RealImaginary
