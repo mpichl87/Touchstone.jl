@@ -1,0 +1,10 @@
+name = "Touchstone"
+uuid = "58ad4722-9971-11e8-0794-397f0fb18c68"
+authors = ["Michael Pichler <michael.pichler@meduniwien.ac.at>"]
+version = "0.1.0"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
