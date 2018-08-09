@@ -143,11 +143,97 @@ ts = TS.parse_touchstone_string( """
         2.311 2.312 2.321 2.322 2.331 2.332
     """, 3 )
 
+@test TS.freqs( ts ) ≈ [ 1e9, 2e9 ]
 
+@test TS.reals( ts, 1, 1 ) ≈ [ 1.111, 2.111 ]
+@test TS.imags( ts, 1, 1 ) ≈ [ 1.112, 2.112 ]
 
+@test TS.reals( ts, 1, 2 ) ≈ [ 1.121, 2.121 ]
+@test TS.imags( ts, 1, 2 ) ≈ [ 1.122, 2.122 ]
 
+@test TS.reals( ts, 1, 3 ) ≈ [ 1.131, 2.131 ]
+@test TS.imags( ts, 1, 3 ) ≈ [ 1.132, 2.132 ]
 
-#
+@test TS.reals( ts, 2, 1 ) ≈ [ 1.211, 2.211 ]
+@test TS.imags( ts, 2, 1 ) ≈ [ 1.212, 2.212 ]
+
+@test TS.reals( ts, 2, 2 ) ≈ [ 1.221, 2.221 ]
+@test TS.imags( ts, 2, 2 ) ≈ [ 1.222, 2.222 ]
+
+@test TS.reals( ts, 2, 3 ) ≈ [ 1.231, 2.231 ]
+@test TS.imags( ts, 2, 3 ) ≈ [ 1.232, 2.232 ]
+
+@test TS.reals( ts, 3, 1 ) ≈ [ 1.311, 2.311 ]
+@test TS.imags( ts, 3, 1 ) ≈ [ 1.312, 2.312 ]
+
+@test TS.reals( ts, 3, 2 ) ≈ [ 1.321, 2.321 ]
+@test TS.imags( ts, 3, 2 ) ≈ [ 1.322, 2.322 ]
+
+@test TS.reals( ts, 3, 3 ) ≈ [ 1.331, 2.331 ]
+@test TS.imags( ts, 3, 3 ) ≈ [ 1.332, 2.332 ]
+
+ts = TS.parse_touchstone_string( """
+    # GHz S RI R 50.0
+    1   1.111 1.112 1.121 1.122 1.131 1.132 1.141 1.142
+        1.211 1.212 1.221 1.222 1.231 1.232 1.241 1.242
+        1.311 1.312 1.321 1.322 1.331 1.332 1.341 1.342
+        1.411 1.412 1.421 1.422 1.431 1.432 1.441 1.442
+    2   2.111 2.112 2.121 2.122 2.131 2.132 2.141 2.142
+        2.211 2.212 2.221 2.222 2.231 2.232 2.241 2.242
+        2.311 2.312 2.321 2.322 2.331 2.332 2.341 2.342
+        2.411 2.412 2.421 2.422 2.431 2.432 2.441 2.442
+    """, 4 )
+
+@test TS.freqs( ts ) ≈ [ 1e9, 2e9 ]
+
+@test TS.reals( ts, 1, 1 ) ≈ [ 1.111, 2.111 ]
+@test TS.imags( ts, 1, 1 ) ≈ [ 1.112, 2.112 ]
+
+@test TS.reals( ts, 1, 2 ) ≈ [ 1.121, 2.121 ]
+@test TS.imags( ts, 1, 2 ) ≈ [ 1.122, 2.122 ]
+
+@test TS.reals( ts, 1, 3 ) ≈ [ 1.131, 2.131 ]
+@test TS.imags( ts, 1, 3 ) ≈ [ 1.132, 2.132 ]
+
+@test TS.reals( ts, 1, 4 ) ≈ [ 1.141, 2.141 ]
+@test TS.imags( ts, 1, 4 ) ≈ [ 1.142, 2.142 ]
+
+@test TS.reals( ts, 2, 1 ) ≈ [ 1.211, 2.211 ]
+@test TS.imags( ts, 2, 1 ) ≈ [ 1.212, 2.212 ]
+
+@test TS.reals( ts, 2, 2 ) ≈ [ 1.221, 2.221 ]
+@test TS.imags( ts, 2, 2 ) ≈ [ 1.222, 2.222 ]
+
+@test TS.reals( ts, 2, 3 ) ≈ [ 1.231, 2.231 ]
+@test TS.imags( ts, 2, 3 ) ≈ [ 1.232, 2.232 ]
+
+@test TS.reals( ts, 2, 4 ) ≈ [ 1.241, 2.241 ]
+@test TS.imags( ts, 2, 4 ) ≈ [ 1.242, 2.242 ]
+
+@test TS.reals( ts, 3, 1 ) ≈ [ 1.311, 2.311 ]
+@test TS.imags( ts, 3, 1 ) ≈ [ 1.312, 2.312 ]
+
+@test TS.reals( ts, 3, 2 ) ≈ [ 1.321, 2.321 ]
+@test TS.imags( ts, 3, 2 ) ≈ [ 1.322, 2.322 ]
+
+@test TS.reals( ts, 3, 3 ) ≈ [ 1.331, 2.331 ]
+@test TS.imags( ts, 3, 3 ) ≈ [ 1.332, 2.332 ]
+
+@test TS.reals( ts, 3, 4 ) ≈ [ 1.341, 2.341 ]
+@test TS.imags( ts, 3, 4 ) ≈ [ 1.342, 2.342 ]
+
+@test TS.reals( ts, 4, 1 ) ≈ [ 1.411, 2.411 ]
+@test TS.imags( ts, 4, 1 ) ≈ [ 1.412, 2.412 ]
+
+@test TS.reals( ts, 4, 2 ) ≈ [ 1.421, 2.421 ]
+@test TS.imags( ts, 4, 2 ) ≈ [ 1.422, 2.422 ]
+
+@test TS.reals( ts, 4, 3 ) ≈ [ 1.431, 2.431 ]
+@test TS.imags( ts, 4, 3 ) ≈ [ 1.432, 2.432 ]
+
+@test TS.reals( ts, 4, 4 ) ≈ [ 1.441, 2.441 ]
+@test TS.imags( ts, 4, 4 ) ≈ [ 1.442, 2.442 ]
+
 # ts = TS.parse_touchstone_file( "test/Test_1_6.S2P", 2 )
 # f = TS.freqs( ts )
 # s21 = TS.dBmags( ts, 2, 1 )

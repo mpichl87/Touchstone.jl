@@ -104,7 +104,6 @@ function parse_two_port_data( line, options = Options() )
 end
 
 function parse_three_port_data( string, options = Options() )
-    println( "parse_three_port_data; string: $( string )" )
     format = options.format
     values = map( s -> parse( Float64, s ), split( string ) )
     freq = values[ 1 ]  * options.unit
@@ -119,7 +118,7 @@ function parse_three_port_data( string, options = Options() )
         data32 = complex( values[ 16 ],values[ 17 ] )
         data33 = complex( values[ 18 ],values[ 19 ] )
     elseif format == :MagnitudeAngle
-        data11 = ma2comp( values[ 2 ],values[ 3 ] )
+        data11 = ma2comp( values[ 2  ],values[ 3  ] )
         data12 = ma2comp( values[ 4  ],values[ 5  ] )
         data13 = ma2comp( values[ 6  ],values[ 7  ] )
         data21 = ma2comp( values[ 8  ],values[ 9  ] )
@@ -129,7 +128,7 @@ function parse_three_port_data( string, options = Options() )
         data32 = ma2comp( values[ 16 ],values[ 17 ] )
         data33 = ma2comp( values[ 18 ],values[ 19 ] )
     elseif format == :DecibelAngle
-        data11 = da2comp( values[ 2 ],values[ 3 ] )
+        data11 = da2comp( values[ 2  ],values[ 3  ] )
         data12 = da2comp( values[ 4  ],values[ 5  ] )
         data13 = da2comp( values[ 6  ],values[ 7  ] )
         data21 = da2comp( values[ 8  ],values[ 9  ] )
@@ -142,6 +141,71 @@ function parse_three_port_data( string, options = Options() )
         throw( error( "wrong format!" ) )
     end
     DataPoint( freq, [ data11 data12 data13; data21 data22 data23; data31 data32 data33 ] )
+end
+
+function parse_four_port_data( string, options = Options() )
+    format = options.format
+    values = map( s -> parse( Float64, s ), split( string ) )
+    freq = values[ 1 ]  * options.unit
+    if format == :RealImaginary
+        data11 = complex( values[ 2  ],values[ 3  ] )
+        data12 = complex( values[ 4  ],values[ 5  ] )
+        data13 = complex( values[ 6  ],values[ 7  ] )
+        data14 = complex( values[ 8  ],values[ 9  ] )
+        data21 = complex( values[ 10 ],values[ 11 ] )
+        data22 = complex( values[ 12 ],values[ 13 ] )
+        data23 = complex( values[ 14 ],values[ 15 ] )
+        data24 = complex( values[ 16 ],values[ 17 ] )
+        data31 = complex( values[ 18 ],values[ 19 ] )
+        data32 = complex( values[ 20 ],values[ 21 ] )
+        data33 = complex( values[ 22 ],values[ 23 ] )
+        data34 = complex( values[ 24 ],values[ 25 ] )
+        data41 = complex( values[ 26 ],values[ 27 ] )
+        data42 = complex( values[ 28 ],values[ 29 ] )
+        data43 = complex( values[ 30 ],values[ 31 ] )
+        data44 = complex( values[ 32 ],values[ 33 ] )
+    elseif format == :MagnitudeAngle
+        data11 = ma2comp( values[ 2  ],values[ 3  ] )
+        data12 = ma2comp( values[ 4  ],values[ 5  ] )
+        data13 = ma2comp( values[ 6  ],values[ 7  ] )
+        data14 = ma2comp( values[ 8  ],values[ 9  ] )
+        data21 = ma2comp( values[ 10 ],values[ 11 ] )
+        data22 = ma2comp( values[ 12 ],values[ 13 ] )
+        data23 = ma2comp( values[ 14 ],values[ 15 ] )
+        data24 = ma2comp( values[ 16 ],values[ 17 ] )
+        data31 = ma2comp( values[ 18 ],values[ 19 ] )
+        data32 = ma2comp( values[ 20 ],values[ 21 ] )
+        data33 = ma2comp( values[ 22 ],values[ 23 ] )
+        data34 = ma2comp( values[ 24 ],values[ 25 ] )
+        data41 = ma2comp( values[ 26 ],values[ 27 ] )
+        data42 = ma2comp( values[ 28 ],values[ 29 ] )
+        data43 = ma2comp( values[ 30 ],values[ 31 ] )
+        data44 = ma2comp( values[ 32 ],values[ 33 ] )
+    elseif format == :DecibelAngle
+        data11 = da2comp( values[ 2  ],values[ 3  ] )
+        data12 = da2comp( values[ 4  ],values[ 5  ] )
+        data13 = da2comp( values[ 6  ],values[ 7  ] )
+        data14 = da2comp( values[ 8  ],values[ 9  ] )
+        data21 = da2comp( values[ 10 ],values[ 11 ] )
+        data22 = da2comp( values[ 12 ],values[ 13 ] )
+        data23 = da2comp( values[ 14 ],values[ 15 ] )
+        data24 = da2comp( values[ 16 ],values[ 17 ] )
+        data31 = da2comp( values[ 18 ],values[ 19 ] )
+        data32 = da2comp( values[ 20 ],values[ 21 ] )
+        data33 = da2comp( values[ 22 ],values[ 23 ] )
+        data34 = da2comp( values[ 24 ],values[ 25 ] )
+        data41 = da2comp( values[ 26 ],values[ 27 ] )
+        data42 = da2comp( values[ 28 ],values[ 29 ] )
+        data43 = da2comp( values[ 30 ],values[ 31 ] )
+        data44 = da2comp( values[ 32 ],values[ 33 ] )
+    else
+        throw( error( "wrong format!" ) )
+    end
+    DataPoint( freq,
+        [   data11 data12 data13 data14;
+            data21 data22 data23 data24;
+            data31 data32 data33 data34;
+            data41 data42 data43 data44 ] )
 end
 
 export parse_touchstone_stream
@@ -169,8 +233,16 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
             push!( multiline, line )
             lines = length( multiline )
             if lines == 3
-                string = join( lines, " " )
+                string = join( multiline, " " )
                 push!( data, parse_three_port_data( string, options ) )
+                multiline = Vector{String}()
+            end
+        elseif ports == 4
+            push!( multiline, line )
+            lines = length( multiline )
+            if lines == 4
+                string = join( multiline, " " )
+                push!( data, parse_four_port_data( string, options ) )
                 multiline = Vector{String}()
             end
         end
