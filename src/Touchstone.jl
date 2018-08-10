@@ -1,31 +1,5 @@
 module Touchstone
 
-const units = Dict{ String, Float64 }(
-    "HZ"    =>      1e0,
-    "KHZ"   =>      1e3,
-    "MHZ"   =>      1e6,
-    "GHZ"   =>      1e9
-)
-const default_units = "GHZ"
-
-const parameters = Dict{ String, Symbol }(
-    "S" => :ScatteringParameters,
-    "Y" => :AdmittanceParameters,
-    "Z" => :ImpedanceParameters,
-    "H" => :HybridHParameters,
-    "G" => :HybridGParameters,
-)
-const default_parameter = "S"
-
-const formats = Dict{ String, Symbol }(
-    "DB" => :DecibelAngle,
-    "MA" => :MagnitudeAngle,
-    "RI" => :RealImaginary
-)
-const default_format = "MA"
-
-const default_resistance = 50.0
-
 import Base: ==, ≈
 struct Options
     unit::Float64
@@ -87,5 +61,6 @@ export imags
 imags( ts::TS, p1 = 1, p2 = 1 ) = map( imag, param( ts, p1, p2 ) )
 
 include( "ParseTouchstone.jl" )
+include( "WriteTouchstone.jl" )
 
 end

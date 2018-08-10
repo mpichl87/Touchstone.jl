@@ -2,5 +2,6 @@ import Touchstone
 TS = Touchstone
 using Test
 
-include( "TestTouchstone.jl")
-include( "TestParseTouchstone.jl")
+include( "TestTouchstone.jl" )
+include( "TestParseTouchstone.jl" )
+include( "TestWriteTouchstone.jl" )

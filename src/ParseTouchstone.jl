@@ -1,3 +1,28 @@
+const units = Dict{ String, Float64 }(
+    "HZ"    =>      1e0,
+    "KHZ"   =>      1e3,
+    "MHZ"   =>      1e6,
+    "GHZ"   =>      1e9
+)
+const default_units = "GHZ"
+
+const parameters = Dict{ String, Symbol }(
+    "S" => :ScatteringParameters,
+    "Y" => :AdmittanceParameters,
+    "Z" => :ImpedanceParameters,
+    "H" => :HybridHParameters,
+    "G" => :HybridGParameters,
+)
+const default_parameter = "S"
+
+const formats = Dict{ String, Symbol }(
+    "DB" => :DecibelAngle,
+    "MA" => :MagnitudeAngle,
+    "RI" => :RealImaginary
+)
+const default_format = "MA"
+
+const default_resistance = 50
 
 is_comment_line( line ) = length( line ) > 0 && line[ 1 ] == '!'
 
