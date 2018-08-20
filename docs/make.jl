@@ -8,8 +8,9 @@ makedocs(
 )
 
 deploydocs(
-  repo   = "github.com/mpichl87/Touchstone.jl",
+  repo   = "github.com/mpichl87/Touchstone.jl.git",
   target = "build",
-  deps   = nothing,
-  make   = nothing
+  julia = "1.0",
+  deps = nothing,
+  make = nothing,
 )
