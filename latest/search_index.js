@@ -21,7 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Library Outline",
     "category": "section",
-    "text": "Pages = [\"public.md\", \"internals.md\"]"
+    "text": "Pages = [\n  \"public.md\",\n  \"internals.md\"\n]"
 },
 
 {
@@ -29,7 +29,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Index",
     "category": "section",
-    "text": "Pages = [\"public.md\"]"
+    "text": "Pages = [\n  \"public.md\"\n]"
 },
 
 {
@@ -53,7 +53,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Contents",
     "category": "section",
-    "text": "Pages = [\"public.md\"]"
+    "text": "Pages = [\n  \"public.md\"\n]"
 },
 
 {
@@ -61,7 +61,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Index",
     "category": "section",
-    "text": "Pages = [\"public.md\"]"
+    "text": "Pages = [\n  \"public.md\"\n]"
 },
 
 {
@@ -205,7 +205,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Public Interface",
     "category": "section",
-    "text": "Modules = [ Touchstone ]\nPrivate = false"
+    "text": "Modules = [\n  Touchstone\n]\nPrivate = false"
 },
 
 {
@@ -229,7 +229,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Internals",
     "title": "Contents",
     "category": "section",
-    "text": "Pages = [\"internals.md\"]"
+    "text": "Pages = [\n  \"internals.md\"\n]"
 },
 
 {
@@ -237,7 +237,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Internals",
     "title": "Index",
     "category": "section",
-    "text": "A list of all internal documentation.Pages = [\"internals.md\"]"
+    "text": "A list of all internal documentation.Pages = [\n  \"internals.md\"\n]"
 },
 
 {
@@ -677,7 +677,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Internals",
     "title": "Internal Package Docs",
     "category": "section",
-    "text": "Modules = [ Touchstone ]\nPublic = false"
+    "text": "Modules = [\n  Touchstone\n]\nPublic = false"
 },
 
 ]}
