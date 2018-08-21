@@ -237,7 +237,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Internals",
     "title": "Index",
     "category": "section",
-    "text": "Pages = [\"internals.md\"]"
+    "text": "A list of all internal documentation.Pages = [\"internals.md\"]"
 },
 
 {
@@ -673,11 +673,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "internals.html#Public-Interface-1",
+    "location": "internals.html#Internal-Package-Docs-1",
     "page": "Internals",
-    "title": "Public Interface",
+    "title": "Internal Package Docs",
     "category": "section",
-    "text": "Modules = [ Touchstone ]\nPrivate = true"
+    "text": "Modules = [ Touchstone ]\nPublic = false"
 },
 
 ]}
