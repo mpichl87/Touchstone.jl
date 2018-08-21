@@ -172,171 +172,44 @@ Converts a pair of values in dB / angle format to a complex number.
 """
 da2comp( d, a ) = ma2comp( 10 ^ ( d / 20 ), a )
 
+"Holds conversion functions for parameter format symbols when parsing."
+const ParseConversions = Dict{ Symbol, Function }(
+  :RealImaginary  => complex,
+  :MagnitudeAngle => ma2comp,
+  :DecibelAngle   => da2comp,
+)
 
 """
-    parse_one_port_data( line, [ options ] )
+    parse_data( line, N, [ options ] )
 
 Returns a data point structure for a valid line of a one-port Touchstone file.
+
+For 3 or more ports, the line should be the concatenation of 3 or more lines from the Touchstone file.
 """
-function parse_one_port_data( line, options = Options() )
-  format = options.format
-  values = map( s -> parse( Float64, s ), split( line ) )
-  freq = values[ 1 ]  * options.unit
-  if format == :RealImaginary
-    data = complex( values[ 2 ],values[ 3 ] )
-  elseif format == :MagnitudeAngle
-    data = ma2comp( values[ 2 ], values[ 3 ] )
-  elseif format == :DecibelAngle
-    data = da2comp( values[ 2 ], values[ 3 ] )
-  else
-    throw( error( "wrong format!" ) )
-  end
-  DataPoint( freq, fill( data, 1, 1 ) )
+function parse_data( line::String, N, options = Options() )
+  vals = map( s -> parse( Float64, s ), split( line ) )
+  parse_data( vals, N, options )
 end
 
 """
-    parse_two_port_data( line, [ options ] )
+    parse_data( vals, N, [ options ] )
 
-Returns a data point structure for a valid line of a two-port Touchstone file.
+Returns a data point structure for a vector of numbers from a one-port Touchstone file.
+
+For 3 or more ports, the array should contain exactly 2N² + 1 values.
 """
-function parse_two_port_data( line, options = Options() )
-  format = options.format
-  values = map( s -> parse( Float64, s ), split( line ) )
-  freq = values[ 1 ]  * options.unit
-  if format == :RealImaginary
-    data11 = complex( values[ 2 ],values[ 3 ] )
-    data21 = complex( values[ 4 ],values[ 5 ] )
-    data12 = complex( values[ 6 ],values[ 7 ] )
-    data22 = complex( values[ 8 ],values[ 9 ] )
-  elseif format == :MagnitudeAngle
-    data11 = ma2comp( values[ 2 ],values[ 3 ] )
-    data21 = ma2comp( values[ 4 ],values[ 5 ] )
-    data12 = ma2comp( values[ 6 ],values[ 7 ] )
-    data22 = ma2comp( values[ 8 ],values[ 9 ] )
-  elseif format == :DecibelAngle
-    data11 = da2comp( values[ 2 ],values[ 3 ] )
-    data21 = da2comp( values[ 4 ],values[ 5 ] )
-    data12 = da2comp( values[ 6 ],values[ 7 ] )
-    data22 = da2comp( values[ 8 ],values[ 9 ] )
-  else
-    throw( error( "wrong format!" ) )
+function parse_data( vals::Array{Float64}, N, options = Options() )
+  if length( vals ) != 2N * N + 1
+    throw( error( "Wrong number of values!" ) )
   end
-  DataPoint( freq, [ data11 data12; data21 data22 ] )
-end
-
-"""
-    parse_three_port_data( line, [ options ] )
-
-Returns a data point structure for a valid line of a three-port Touchstone file.
-"""
-function parse_three_port_data( string, options = Options() )
-  format = options.format
-  values = map( s -> parse( Float64, s ), split( string ) )
-  freq = values[ 1 ]  * options.unit
-  if format == :RealImaginary
-    data11 = complex( values[ 2  ],values[ 3  ] )
-    data12 = complex( values[ 4  ],values[ 5  ] )
-    data13 = complex( values[ 6  ],values[ 7  ] )
-    data21 = complex( values[ 8  ],values[ 9  ] )
-    data22 = complex( values[ 10 ],values[ 11 ] )
-    data23 = complex( values[ 12 ],values[ 13 ] )
-    data31 = complex( values[ 14 ],values[ 15 ] )
-    data32 = complex( values[ 16 ],values[ 17 ] )
-    data33 = complex( values[ 18 ],values[ 19 ] )
-  elseif format == :MagnitudeAngle
-    data11 = ma2comp( values[ 2  ],values[ 3  ] )
-    data12 = ma2comp( values[ 4  ],values[ 5  ] )
-    data13 = ma2comp( values[ 6  ],values[ 7  ] )
-    data21 = ma2comp( values[ 8  ],values[ 9  ] )
-    data22 = ma2comp( values[ 10 ],values[ 11 ] )
-    data23 = ma2comp( values[ 12 ],values[ 13 ] )
-    data31 = ma2comp( values[ 14 ],values[ 15 ] )
-    data32 = ma2comp( values[ 16 ],values[ 17 ] )
-    data33 = ma2comp( values[ 18 ],values[ 19 ] )
-  elseif format == :DecibelAngle
-    data11 = da2comp( values[ 2  ],values[ 3  ] )
-    data12 = da2comp( values[ 4  ],values[ 5  ] )
-    data13 = da2comp( values[ 6  ],values[ 7  ] )
-    data21 = da2comp( values[ 8  ],values[ 9  ] )
-    data22 = da2comp( values[ 10 ],values[ 11 ] )
-    data23 = da2comp( values[ 12 ],values[ 13 ] )
-    data31 = da2comp( values[ 14 ],values[ 15 ] )
-    data32 = da2comp( values[ 16 ],values[ 17 ] )
-    data33 = da2comp( values[ 18 ],values[ 19 ] )
-  else
-    throw( error( "wrong format!" ) )
+  freq = vals[ 1 ]  * options.unit
+  pairs = zip( vals[ 2:2:end - 1 ], vals[ 3:2:end ] )
+  converted = map( pair -> ParseConversions[ options.format ]( pair... ), pairs )
+  res = reshape( converted, N, N )
+  if N > 2
+    res = permutedims( res, [ 2, 1 ] )
   end
-  DataPoint( freq, [ data11 data12 data13; data21 data22 data23; data31 data32 data33 ] )
-end
-
-"""
-    parse_four_port_data( line, [ options ] )
-
-Returns a data point structure for a valid line of a four-port Touchstone file.
-"""
-function parse_four_port_data( string, options = Options() )
-  format = options.format
-  values = map( s -> parse( Float64, s ), split( string ) )
-  freq = values[ 1 ]  * options.unit
-  if format == :RealImaginary
-    data11 = complex( values[ 2  ],values[ 3  ] )
-    data12 = complex( values[ 4  ],values[ 5  ] )
-    data13 = complex( values[ 6  ],values[ 7  ] )
-    data14 = complex( values[ 8  ],values[ 9  ] )
-    data21 = complex( values[ 10 ],values[ 11 ] )
-    data22 = complex( values[ 12 ],values[ 13 ] )
-    data23 = complex( values[ 14 ],values[ 15 ] )
-    data24 = complex( values[ 16 ],values[ 17 ] )
-    data31 = complex( values[ 18 ],values[ 19 ] )
-    data32 = complex( values[ 20 ],values[ 21 ] )
-    data33 = complex( values[ 22 ],values[ 23 ] )
-    data34 = complex( values[ 24 ],values[ 25 ] )
-    data41 = complex( values[ 26 ],values[ 27 ] )
-    data42 = complex( values[ 28 ],values[ 29 ] )
-    data43 = complex( values[ 30 ],values[ 31 ] )
-    data44 = complex( values[ 32 ],values[ 33 ] )
-  elseif format == :MagnitudeAngle
-    data11 = ma2comp( values[ 2  ],values[ 3  ] )
-    data12 = ma2comp( values[ 4  ],values[ 5  ] )
-    data13 = ma2comp( values[ 6  ],values[ 7  ] )
-    data14 = ma2comp( values[ 8  ],values[ 9  ] )
-    data21 = ma2comp( values[ 10 ],values[ 11 ] )
-    data22 = ma2comp( values[ 12 ],values[ 13 ] )
-    data23 = ma2comp( values[ 14 ],values[ 15 ] )
-    data24 = ma2comp( values[ 16 ],values[ 17 ] )
-    data31 = ma2comp( values[ 18 ],values[ 19 ] )
-    data32 = ma2comp( values[ 20 ],values[ 21 ] )
-    data33 = ma2comp( values[ 22 ],values[ 23 ] )
-    data34 = ma2comp( values[ 24 ],values[ 25 ] )
-    data41 = ma2comp( values[ 26 ],values[ 27 ] )
-    data42 = ma2comp( values[ 28 ],values[ 29 ] )
-    data43 = ma2comp( values[ 30 ],values[ 31 ] )
-    data44 = ma2comp( values[ 32 ],values[ 33 ] )
-  elseif format == :DecibelAngle
-    data11 = da2comp( values[ 2  ],values[ 3  ] )
-    data12 = da2comp( values[ 4  ],values[ 5  ] )
-    data13 = da2comp( values[ 6  ],values[ 7  ] )
-    data14 = da2comp( values[ 8  ],values[ 9  ] )
-    data21 = da2comp( values[ 10 ],values[ 11 ] )
-    data22 = da2comp( values[ 12 ],values[ 13 ] )
-    data23 = da2comp( values[ 14 ],values[ 15 ] )
-    data24 = da2comp( values[ 16 ],values[ 17 ] )
-    data31 = da2comp( values[ 18 ],values[ 19 ] )
-    data32 = da2comp( values[ 20 ],values[ 21 ] )
-    data33 = da2comp( values[ 22 ],values[ 23 ] )
-    data34 = da2comp( values[ 24 ],values[ 25 ] )
-    data41 = da2comp( values[ 26 ],values[ 27 ] )
-    data42 = da2comp( values[ 28 ],values[ 29 ] )
-    data43 = da2comp( values[ 30 ],values[ 31 ] )
-    data44 = da2comp( values[ 32 ],values[ 33 ] )
-  else
-    throw( error( "wrong format!" ) )
-  end
-  DataPoint( freq,
-    [   data11 data12 data13 data14;
-        data21 data22 data23 data24;
-        data31 data32 data33 data34;
-        data41 data42 data43 data44 ] )
+  return DataPoint( freq, res )
 end
 
 """
@@ -362,15 +235,15 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
       options = parse_option_line( line )
       first_option_line = false
     elseif ports == 1
-      push!( data, parse_one_port_data( line, options ) )
+      push!( data, parse_data( line, 1, options ) )
     elseif ports == 2
-      push!( data, parse_two_port_data( line, options ) )
+      push!( data, parse_data( line, 2, options ) )
     elseif ports == 3
       push!( multiline, line )
       lines = length( multiline )
       if lines == 3
         string = join( multiline, " " )
-        push!( data, parse_three_port_data( string, options ) )
+        push!( data, parse_data( string, 3, options ) )
         multiline = Vector{String}()
       end
     elseif ports == 4
@@ -378,7 +251,7 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
       lines = length( multiline )
       if lines == 4
         string = join( multiline, " " )
-        push!( data, parse_four_port_data( string, options ) )
+        push!( data, parse_data( string, 4, options ) )
         multiline = Vector{String}()
       end
     end

@@ -4,7 +4,17 @@ using Documenter, Touchstone
 
 makedocs(
   format = :html,
-  sitename = "Touchstone.jl"
+  sitename = "Touchstone.jl",
+  modules = [
+    Touchstone
+  ],
+  pages = [
+    "Home" => "index.md",
+    "Library" => [
+      "Public"    => "public.md",
+      "Internals" => "internals.md"
+    ]
+  ]
 )
 
 deploydocs(

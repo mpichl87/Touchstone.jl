@@ -1,4 +1,4 @@
-import Touchstone
+using Touchstone
 TS = Touchstone
 using Test
 
