@@ -9,6 +9,10 @@
 
 ## Changelog
 
+### v0.1.4
+
+Parsing and writing refactored, better Tests.
+
 ### v0.1.3
 
 Added documentation with Documenter.jl.
