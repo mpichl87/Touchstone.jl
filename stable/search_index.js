@@ -21,7 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Library Outline",
     "category": "section",
-    "text": "Pages = [\"public.md\", \"internals.md\"]"
+    "text": "Pages = [\n  \"public.md\",\n  \"internals.md\"\n]"
 },
 
 {
@@ -29,7 +29,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Index",
     "category": "section",
-    "text": "Pages = [\"public.md\"]"
+    "text": "Pages = [\n  \"public.md\"\n]"
 },
 
 {
@@ -53,7 +53,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Contents",
     "category": "section",
-    "text": "Pages = [\"public.md\"]"
+    "text": "Pages = [\n  \"public.md\"\n]"
 },
 
 {
@@ -61,7 +61,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Index",
     "category": "section",
-    "text": "Pages = [\"public.md\"]"
+    "text": "Pages = [\n  \"public.md\"\n]"
 },
 
 {
@@ -205,7 +205,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Public Interface",
     "category": "section",
-    "text": "Modules = [ Touchstone ]\nPrivate = false"
+    "text": "Modules = [\n  Touchstone\n]\nPrivate = false"
 },
 
 {
@@ -229,7 +229,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Internals",
     "title": "Contents",
     "category": "section",
-    "text": "Pages = [\"internals.md\"]"
+    "text": "Pages = [\n  \"internals.md\"\n]"
 },
 
 {
@@ -237,7 +237,23 @@ var documenterSearchIndex = {"docs": [
     "page": "Internals",
     "title": "Index",
     "category": "section",
-    "text": "Pages = [\"internals.md\"]"
+    "text": "A list of all internal documentation.Pages = [\n  \"internals.md\"\n]"
+},
+
+{
+    "location": "internals.html#Touchstone.ParseConversions",
+    "page": "Internals",
+    "title": "Touchstone.ParseConversions",
+    "category": "constant",
+    "text": "Holds conversion functions for parameter format symbols when parsing.\n\n\n\n\n\n"
+},
+
+{
+    "location": "internals.html#Touchstone.WriteConversions",
+    "page": "Internals",
+    "title": "Touchstone.WriteConversions",
+    "category": "constant",
+    "text": "Holds conversion functions for parameter format symbols when writing.\n\n\n\n\n\n"
 },
 
 {
@@ -521,6 +537,22 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "internals.html#Touchstone.parse_data",
+    "page": "Internals",
+    "title": "Touchstone.parse_data",
+    "category": "function",
+    "text": "parse_data( line, N, [ options ] )\n\nReturns a data point structure for a valid line of a one-port Touchstone file.\n\nFor 3 or more ports, the line should be the concatenation of 3 or more lines from the Touchstone file.\n\n\n\n\n\n"
+},
+
+{
+    "location": "internals.html#Touchstone.parse_data",
+    "page": "Internals",
+    "title": "Touchstone.parse_data",
+    "category": "function",
+    "text": "parse_data( vals, N, [ options ] )\n\nReturns a data point structure for a vector of numbers from a one-port Touchstone file.\n\nFor 3 or more ports, the array should contain exactly 2N² + 1 values.\n\n\n\n\n\n"
+},
+
+{
     "location": "internals.html#Touchstone.parse_format_option-Tuple{Any}",
     "page": "Internals",
     "title": "Touchstone.parse_format_option",
@@ -529,27 +561,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "internals.html#Touchstone.parse_four_port_data",
-    "page": "Internals",
-    "title": "Touchstone.parse_four_port_data",
-    "category": "function",
-    "text": "parse_four_port_data( line, [ options ] )\n\nReturns a data point structure for a valid line of a four-port Touchstone file.\n\n\n\n\n\n"
-},
-
-{
     "location": "internals.html#Touchstone.parse_frequency_unit_option-Tuple{Any}",
     "page": "Internals",
     "title": "Touchstone.parse_frequency_unit_option",
     "category": "method",
     "text": "parse_frequency_unit_option( option )\n\nReturns the multiplier for a unit string in an option line.\n\n\n\n\n\n"
-},
-
-{
-    "location": "internals.html#Touchstone.parse_one_port_data",
-    "page": "Internals",
-    "title": "Touchstone.parse_one_port_data",
-    "category": "function",
-    "text": "parse_one_port_data( line, [ options ] )\n\nReturns a data point structure for a valid line of a one-port Touchstone file.\n\n\n\n\n\n"
 },
 
 {
@@ -577,27 +593,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "internals.html#Touchstone.parse_three_port_data",
-    "page": "Internals",
-    "title": "Touchstone.parse_three_port_data",
-    "category": "function",
-    "text": "parse_three_port_data( line, [ options ] )\n\nReturns a data point structure for a valid line of a three-port Touchstone file.\n\n\n\n\n\n"
-},
-
-{
-    "location": "internals.html#Touchstone.parse_two_port_data",
-    "page": "Internals",
-    "title": "Touchstone.parse_two_port_data",
-    "category": "function",
-    "text": "parse_two_port_data( line, [ options ] )\n\nReturns a data point structure for a valid line of a two-port Touchstone file.\n\n\n\n\n\n"
-},
-
-{
     "location": "internals.html#Touchstone.write_comment_line-Tuple{Any}",
     "page": "Internals",
     "title": "Touchstone.write_comment_line",
     "category": "method",
     "text": "write_comment_line( comment )\n\nReturns a comment line string for a comment.\n\n\n\n\n\n"
+},
+
+{
+    "location": "internals.html#Touchstone.write_data",
+    "page": "Internals",
+    "title": "Touchstone.write_data",
+    "category": "function",
+    "text": "write_data( data, N [ options ] )\n\nReturns a string for N-port Touchstone formated lines for a data point.\n\n\n\n\n\n"
 },
 
 {
@@ -609,27 +617,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "internals.html#Touchstone.write_four_port_data",
-    "page": "Internals",
-    "title": "Touchstone.write_four_port_data",
-    "category": "function",
-    "text": "write_four_port_data( data, [ options ] )\n\nReturns a string for a four-port Touchstone formated line for a data point.\n\n\n\n\n\n"
-},
-
-{
     "location": "internals.html#Touchstone.write_frequency_unit_option",
     "page": "Internals",
     "title": "Touchstone.write_frequency_unit_option",
     "category": "function",
     "text": "write_frequency_unit_option( [ value ] )\n\nReturns an option line string for a valid frequency unit multiplier.\n\n\n\n\n\n"
-},
-
-{
-    "location": "internals.html#Touchstone.write_one_port_data",
-    "page": "Internals",
-    "title": "Touchstone.write_one_port_data",
-    "category": "function",
-    "text": "write_one_port_data( data, [ options ] )\n\nReturns a string for a one-port Touchstone formated line for a data point.\n\n\n\n\n\n"
 },
 
 {
@@ -657,27 +649,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "internals.html#Touchstone.write_three_port_data",
+    "location": "internals.html#Internal-Package-Docs-1",
     "page": "Internals",
-    "title": "Touchstone.write_three_port_data",
-    "category": "function",
-    "text": "write_three_port_data( data, [ options ] )\n\nReturns a string for a three-port Touchstone formated line for a data point.\n\n\n\n\n\n"
-},
-
-{
-    "location": "internals.html#Touchstone.write_two_port_data",
-    "page": "Internals",
-    "title": "Touchstone.write_two_port_data",
-    "category": "function",
-    "text": "write_two_port_data( data, [ options ] )\n\nReturns a string for a two-port Touchstone formated line for a data point.\n\n\n\n\n\n"
-},
-
-{
-    "location": "internals.html#Public-Interface-1",
-    "page": "Internals",
-    "title": "Public Interface",
+    "title": "Internal Package Docs",
     "category": "section",
-    "text": "Modules = [ Touchstone ]\nPrivate = true"
+    "text": "Modules = [\n  Touchstone\n]\nPublic = false"
 },
 
 ]}
