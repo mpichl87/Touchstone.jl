@@ -273,4 +273,8 @@ parse_touchstone_string( in::String, ports::Integer = 1 ) = parse_touchstone_str
 Returns a TS structure for a valid Touchstone data file.
 Works for ports = 1, 2, 3 or 4.
 """
-parse_touchstone_file( filename::String, ports::Integer = 1 ) = parse_touchstone_stream( open( filename ), ports )
+function parse_touchstone_file( filename::String, ports::Integer = 1 )
+  open( filename ) do io
+    parse_touchstone_stream( open( filename ), ports )
+  end
+end

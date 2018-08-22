@@ -198,4 +198,8 @@ end
 
 Writes formated Touchstone data for a TS structure to a file.
 """
-write_touchstone_file( filename::String, ts::TS ) = write_touchstone_stream( open( filename, "w+" ), ts )
+function write_touchstone_file( filename::String, ts::TS )
+  open( filename, "w" ) do io
+    write_touchstone_stream( io, ts )
+  end
+end
