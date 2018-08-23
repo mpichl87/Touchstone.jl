@@ -149,10 +149,23 @@ function write_data( data::DataPoint, N::Integer, options::Options = Options() )
   strings = map( snn -> WriteConversions[ options.format ]( snn ), paras )
   datastrings = ones( String, lines )
   for row in 1:lines
-    datastrings[ row ] = join( strings[ row, : ], " " )
+    # V 1.0 not more than 4 pairs ( + freq ) in a line
+    if N > 4
+      for col in 1:N
+        if col > 0 && col % 4 == 0
+          strings[ row, col ] *= "\n"
+        end
+      end
+    end
+    datastrings[ row ] = replace( join( strings[ row, : ], " " ), "\n " => "\n" )
   end
   datastrings[ 1 ] = freqstring * " " * datastrings[ 1 ]
-  return datastrings
+  datastring = join( datastrings, "\n" )
+  if datastring[ end ] == "\n"
+    return datastring
+  else
+    return datastring * "\n"
+  end
 end
 
 """
@@ -175,10 +188,7 @@ function write_touchstone_stream( stream::IO, ts::TS )
   end
 
   for datapoint in ts.data
-    for line in write_data( datapoint, ports, ts.options )
-      write( stream, line )
-      write( stream, "\n" )
-    end
+    write( stream, write_data( datapoint, ports, ts.options ) )
   end
 end
 

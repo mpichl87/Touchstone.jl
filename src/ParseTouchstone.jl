@@ -216,14 +216,14 @@ end
     parse_touchstone_stream( stream, [ ports ] )
 
 Returns a TS structure for a valid Touchstone data stream.
-Works for ports = 1, 2, 3 or 4.
 """
 function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
   options = Options()
   first_option_line = true
   comments = Vector{String}()
   data = Vector{DataPoint}()
-  multiline = Vector{String}()
+  neededValues = 1 + 2ports * ports
+  vals = Vector{Float64}()
   for line in eachline( stream )
     if is_empy_line( line )
       ;# nothing
@@ -234,25 +234,12 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
     elseif first_option_line && is_option_line( line )
       options = parse_option_line( line )
       first_option_line = false
-    elseif ports == 1
-      push!( data, parse_data( line, 1, options ) )
-    elseif ports == 2
-      push!( data, parse_data( line, 2, options ) )
-    elseif ports == 3
-      push!( multiline, line )
-      lines = length( multiline )
-      if lines == 3
-        string = join( multiline, " " )
-        push!( data, parse_data( string, 3, options ) )
-        multiline = Vector{String}()
-      end
-    elseif ports == 4
-      push!( multiline, line )
-      lines = length( multiline )
-      if lines == 4
-        string = join( multiline, " " )
-        push!( data, parse_data( string, 4, options ) )
-        multiline = Vector{String}()
+    else
+      vals = [ vals; map( s -> parse( Float64, s ), split( line ) ) ]
+      nVals = length( vals )
+      if nVals >= neededValues
+        push!( data, parse_data( vals, ports, options ) )
+        vals = Vector{Float64}()
       end
     end
   end

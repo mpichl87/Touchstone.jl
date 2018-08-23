@@ -1,6 +1,6 @@
 # Touchstone.jl
 
-Reads and writes 1 -4 port Touchstone V1.0 files.
+Parses and writes N-port Touchstone V1.0 files, streams and strings.
 
 See the [Index](@ref main-index) for the complete list of documented functions and types.
 
