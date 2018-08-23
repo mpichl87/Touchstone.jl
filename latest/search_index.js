@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Touchstone.jl",
     "category": "section",
-    "text": "Reads and writes 1 -4 port Touchstone V1.0 files.See the Index for the complete list of documented functions and types."
+    "text": "Parses and writes N-port Touchstone V1.0 files, streams and strings.See the Index for the complete list of documented functions and types."
 },
 
 {
@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Touchstone.parse_touchstone_stream",
     "category": "function",
-    "text": "parse_touchstone_stream( stream, [ ports ] )\n\nReturns a TS structure for a valid Touchstone data stream. Works for ports = 1, 2, 3 or 4.\n\n\n\n\n\n"
+    "text": "parse_touchstone_stream( stream, [ ports ] )\n\nReturns a TS structure for a valid Touchstone data stream.\n\n\n\n\n\n"
 },
 
 {
