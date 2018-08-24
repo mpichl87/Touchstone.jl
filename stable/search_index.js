@@ -149,7 +149,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Touchstone.parse_touchstone_file",
     "category": "function",
-    "text": "parse_touchstone_file( filename, [ ports ] )\n\nReturns a TS structure for a valid Touchstone data file. Works for ports = 1, 2, 3 or 4.\n\n\n\n\n\n"
+    "text": "parse_touchstone_file( filename, [ ports ] )\n\nReturns a TS structure for a valid Touchstone data file.\n\nWhen called without ports, tries to interpret the file extension, such as \".s2p\", or \".S4P\".\n\n\n\n\n\n"
 },
 
 {
@@ -165,7 +165,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Touchstone.parse_touchstone_string",
     "category": "function",
-    "text": "parse_touchstone_string( in, [ ports ] )\n\nReturns a TS structure for a valid Touchstone data string. Works for ports = 1, 2, 3 or 4.\n\n\n\n\n\n"
+    "text": "parse_touchstone_string( in, [ ports ] )\n\nReturns a TS structure for a valid Touchstone data string.\n\n\n\n\n\n"
 },
 
 {
