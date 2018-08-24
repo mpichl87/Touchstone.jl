@@ -250,7 +250,6 @@ end
     parse_touchstone_string( in, [ ports ] )
 
 Returns a TS structure for a valid Touchstone data string.
-Works for ports = 1, 2, 3 or 4.
 """
 parse_touchstone_string( in::String, ports::Integer = 1 ) = parse_touchstone_stream( IOBuffer( in ), ports )
 
@@ -258,9 +257,19 @@ parse_touchstone_string( in::String, ports::Integer = 1 ) = parse_touchstone_str
     parse_touchstone_file( filename, [ ports ] )
 
 Returns a TS structure for a valid Touchstone data file.
-Works for ports = 1, 2, 3 or 4.
+
+When called without ports, tries to interpret the file extension, such as ".s2p", or ".S4P".
 """
-function parse_touchstone_file( filename::String, ports::Integer = 1 )
+function parse_touchstone_file( filename::String, ports::Integer = 0 )
+  if ports == 0
+    extorig =  splitext( filename )[ 2 ][ 2: end ]
+    ext = uppercase( extorig )
+    if ext[ 1 ] == 'S' && ext[ end ] == 'P'
+      ports = parse( Int64, ext[ 2:end - 1 ] )
+    else
+      throw( error( "File extension ( $( extorig ) ) not recognized, unknown number of ports." ) )
+    end
+  end
   open( filename ) do io
     parse_touchstone_stream( open( filename ), ports )
   end

@@ -41,4 +41,4 @@ close( buffer )
 # File:
 filename = joinpath( tempdir(), "test.s4p" )
 write_touchstone_file( filename, fourportdata )
-@test parse_touchstone_file( filename, 4 ) == fourportdata
+@test parse_touchstone_file( filename ) == fourportdata

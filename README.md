@@ -9,6 +9,9 @@
 
 ## Changelog
 
+### v0.1.6
+
+parse_touchstone_file interpretes file extension .
 
 ### v0.1.5
 
