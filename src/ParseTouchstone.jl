@@ -235,6 +235,12 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
       options = parse_option_line( line )
       first_option_line = false
     else
+      strings = split( line, "!" )
+      if length( strings ) > 1
+        comment = join( strings[ 2:end ], "!" )
+        push!( comments, comment )
+        line = strings[ 1 ]
+      end
       vals = [ vals; map( s -> parse( Float64, s ), split( line ) ) ]
       nVals = length( vals )
       if nVals >= neededValues

@@ -1,3 +1,4 @@
+# V1.0
 @test ! TS.is_comment_line( "" )
 @test   TS.is_comment_line( "!" )
 @test   TS.is_comment_line( "!comment" )
@@ -165,7 +166,7 @@ ts = TS.parse_touchstone_string( """
     !1-port Z-parameter file, multiple frequency points
     # MHz Z MA R 75
     !freq magZ11 angZ11
-    100     0.99    -4
+    100     0.99    -4  !Comment
     200     0.80    -22
     300     0.707   -45
     400     0.40    -62
@@ -175,6 +176,7 @@ ts = TS.parse_touchstone_string( """
 @test TS.freqs( ts ) ≈ collect( 1:5 ) * 100e6
 @test TS.mags( ts ) ≈ [ 0.99, 0.80, 0.707, 0.4, 0.01 ]
 @test TS.angs( ts ) ≈ [ -4, -22, -45, -62, -89 ]
+@test ts.comments == [ "1-port Z-parameter file, multiple frequency points", "freq magZ11 angZ11", "Comment" ]
 
 # Example 13 (Version 1.0):
 ts = TS.parse_touchstone_string( """
@@ -415,3 +417,4 @@ ts = TS.parse_touchstone_string( """
     ],
     TS.Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 )
   )
+# V2.0

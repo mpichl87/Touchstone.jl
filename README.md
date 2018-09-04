@@ -10,6 +10,12 @@
 
 ## Changelog
 
+
+### v1.0.0
+
+Version 1.0 fully implemented.
+Comments at end of line work now.
+
 ### v0.1.6
 
 parse_touchstone_file interpretes file extension .
