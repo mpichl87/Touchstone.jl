@@ -18,6 +18,8 @@ TODO:
 
 - Parse Noise Data
 - Parse [Matrix Format) and implement upper and lower triangular datasets.
+- Check [Mixed-Mode Order] parameters.
+- Write Version 2.0 format.
 
 
 ### v1.0.0

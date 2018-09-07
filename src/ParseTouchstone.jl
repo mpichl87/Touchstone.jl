@@ -421,12 +421,12 @@ Checks, if a line is a valid keyword line.
 """
 is_keyword_line( line::String ) = length( line ) > 0 && line[ 1 ] == '['
 
-function parse_N_params( params, N::Integer, type::DataType = String )
+function parse_N_params( params, N::Integer, tp::DataType = String )
   if length( params ) != N
     error( "Exactly $( N ) parameter expected." )
   else
-    if type != String
-      params = map( x -> parse( type, x ), params )
+    if tp != String
+      params = map( x -> parse( tp, x ), params )
     end
     if N == 1
       params = params[ 1 ]
@@ -436,10 +436,10 @@ function parse_N_params( params, N::Integer, type::DataType = String )
 end
 
 
-function parse_N_params( params, type::DataType )
+function parse_N_params( params, tp::DataType )
   N = length( params )
-  if type != String
-    params = map( x -> parse( type, x ), params )
+  if tp != String
+    params = map( x -> parse( tp, x ), params )
   end
 end
 
