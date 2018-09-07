@@ -55,13 +55,13 @@
   # GHz S MA R 50.0
   """
 
-@test TS.write_touchstone_string( TS.TS( TS.Options(), [ "Test" ] ) ) == """
+@test TS.write_touchstone_string( TS.TS( DataPoint[], TS.Options(), [ "Test" ] ) ) == """
   !Test
   # GHz S MA R 50.0
   """
 
 @test TS.write_touchstone_string( TS.TS(
-  TS.Options( 1.0, :HybridGParameters, :RealImaginary, 50.0 ), [ "Test1", "Test2" ] ) ) == """
+  DataPoint[], TS.Options( 1.0, :HybridGParameters, :RealImaginary, 50.0 ), [ "Test1", "Test2" ] ) ) == """
   !Test1
   !Test2
   # Hz G RI R 50.0

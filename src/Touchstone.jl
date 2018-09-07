@@ -3,6 +3,7 @@ module Touchstone
 import Base: ==, ≈
 
 export Options, DataPoint, TS, freqs, params, param, mags, dBmags, angs, reals, imags
+export version, ports, refs
 export parse_touchstone_stream, parse_touchstone_string, parse_touchstone_file
 export write_touchstone_stream, write_touchstone_string, write_touchstone_file
 
@@ -40,18 +41,24 @@ end
 
 "Holds data for Touchstone file."
 struct TS
-  data::Vector{DataPoint}
+  data::Vector{ DataPoint }
   options::Options
-  comments::Vector{String}
+  comments::Vector{ String }
+  keywordparams::Dict{ Symbol, Any }
 end
-TS( data = Vector{DataPoint}(), options::Options = Options(), comments = Vector{String}() ) = TS( data, options, comments )
-TS( options::Options, comments = Vector{String}() ) = TS( Vector{DataPoint}(), options, comments )
+TS(
+  data = Vector{ DataPoint }(),
+  options::Options = Options(),
+  comments = Vector{ String }(),
+  keywordparams = Dict{ Symbol, Any }()
+) = TS( data, options, comments, keywordparams )
+
 "Compares Touchstone data."
 function ==( ts1, ts2 :: TS )
     ts1.data == ts2.data &&
     ts1.options == ts2.options &&
     ts1.comments == ts2.comments &&
-    ts1.data == ts2.data
+    ts1.keywordparams == ts2.keywordparams
 end
 
 """
@@ -109,6 +116,38 @@ reals( ts::TS, p1 = 1, p2 = 1 ) = map( real, param( ts, p1, p2 ) )
 Gets the vector of the imaginary parts of parameters with indices p1, p2 from Touchstone data.
 """
 imags( ts::TS, p1 = 1, p2 = 1 ) = map( imag, param( ts, p1, p2 ) )
+
+
+function version( ts::TS )
+  if haskey( ts.keywordparams, :Version )
+    if ts.keywordparams[ :Version ] == 2
+      return "2.0"
+    else
+      error( "Unknown version." )
+    end
+  else
+    return( "1.0" )
+  end
+end
+
+function ports( ts::TS )
+  ports = 0
+  if version( ts ) == "2.0"
+    ports = ts.keywordparams[ :NumberOfPorts ]
+  elseif length( ts.data ) > 0
+    ports = size( ts.data[ 1 ].parameter, 1 )
+  end
+  return ports
+end
+
+function refs( ts::TS )
+  if version( ts ) == "2.0" && haskey( ts.keywordparams, :Reference )
+    refs = ts.keywordparams[ :Reference ]
+  else
+    refs = fill( ts.options.resistance, ports( ts ) )
+  end
+  return refs
+end
 
 include( "ParseTouchstone.jl" )
 include( "WriteTouchstone.jl" )

@@ -10,10 +10,26 @@
 
 ## Changelog
 
+### v1.0.1
+
+Version 2.0 parser works in most cases.
+
+TODO:
+
+- Parse Noise Data
+- Parse [Matrix Format) and implement upper and lower triangular datasets.
+
 
 ### v1.0.0
 
-Version 1.0 fully implemented.
+Version 1.0 works in most cases.
+
+TODO:
+
+- Normalization for Z, Y, G and H parameters.
+- Check limit of four complex parameters per line.
+- Check for ascending frequencies.
+
 Comments at end of line work now.
 
 ### v0.1.6

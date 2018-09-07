@@ -151,14 +151,14 @@
 
 @test   TS.parse_touchstone_string( """
     !Test
-    """ ) == TS.TS( TS.Options(), [ "Test" ] )
+    """ ) == TS.TS( DataPoint[], TS.Options(), [ "Test" ] )
 
 @test   TS.parse_touchstone_string( """
     !Test1
 
     # Hz G RI R 50
     !Test2
-    """ ) == TS.TS(   TS.Options( 1.0, :HybridGParameters, :RealImaginary, 50.0 ), [ "Test1", "Test2" ]  )
+    """ ) == TS.TS( DataPoint[], TS.Options( 1.0, :HybridGParameters, :RealImaginary, 50.0 ), [ "Test1", "Test2" ]  )
 
 
 # Example 9 (Version 1.0):
@@ -177,6 +177,9 @@ ts = TS.parse_touchstone_string( """
 @test TS.mags( ts ) ≈ [ 0.99, 0.80, 0.707, 0.4, 0.01 ]
 @test TS.angs( ts ) ≈ [ -4, -22, -45, -62, -89 ]
 @test ts.comments == [ "1-port Z-parameter file, multiple frequency points", "freq magZ11 angZ11", "Comment" ]
+@test version( ts ) == "1.0"
+@test ports( ts ) == 1
+@test refs( ts ) == [ 75.0 ]
 
 # Example 13 (Version 1.0):
 ts = TS.parse_touchstone_string( """
@@ -202,12 +205,15 @@ ts = TS.parse_touchstone_string( """
 @test TS.reals( ts, 2, 2 ) ≈ [ 0.3926, 0.3517, 0.3419 ]
 @test TS.imags( ts, 2, 2 ) ≈ [ -0.1211, -0.3054, 0.3336 ]
 
+@test version( ts ) == "1.0"
+@test ports( ts ) == 2
+@test refs( ts ) == [ 50.0, 50.0 ]
+
 ts = TS.parse_touchstone_string( """
     # GHz S RI R 50.0
     1 1.11 1.11 1.21 1.21 1.12 1.12 1.22 1.22
     2 2.11 2.11 2.21 2.21 2.12 2.12 2.22 2.22
     """, 2 )
-
 @test TS.freqs( ts ) ≈ [ 1e9, 2e9 ]
 
 @test TS.reals( ts, 1, 1 ) ≈ [ 1.11, 2.11 ]
@@ -222,6 +228,10 @@ ts = TS.parse_touchstone_string( """
 @test TS.reals( ts, 2, 2 ) ≈ [ 1.22, 2.22 ]
 @test TS.imags( ts, 2, 2 ) ≈ [ 1.22, 2.22 ]
 
+@test version( ts ) == "1.0"
+@test ports( ts ) == 2
+@test refs( ts ) == [ 50.0, 50.0 ]
+
 ts = TS.parse_touchstone_string( """
     # GHz S RI R 50.0
     1   1.111 1.112 1.121 1.122 1.131 1.132
@@ -231,7 +241,6 @@ ts = TS.parse_touchstone_string( """
         2.211 2.212 2.221 2.222 2.231 2.232
         2.311 2.312 2.321 2.322 2.331 2.332
     """, 3 )
-
 @test TS.freqs( ts ) ≈ [ 1e9, 2e9 ]
 
 @test TS.reals( ts, 1, 1 ) ≈ [ 1.111, 2.111 ]
@@ -260,6 +269,10 @@ ts = TS.parse_touchstone_string( """
 
 @test TS.reals( ts, 3, 3 ) ≈ [ 1.331, 2.331 ]
 @test TS.imags( ts, 3, 3 ) ≈ [ 1.332, 2.332 ]
+
+@test version( ts ) == "1.0"
+@test ports( ts ) == 3
+@test refs( ts ) == [ 50.0, 50.0, 50.0 ]
 
 ts = TS.parse_touchstone_string( """
     # GHz S RI R 50.0
@@ -323,10 +336,11 @@ ts = TS.parse_touchstone_string( """
 @test TS.reals( ts, 4, 4 ) ≈ [ 1.441, 2.441 ]
 @test TS.imags( ts, 4, 4 ) ≈ [ 1.442, 2.442 ]
 
+@test version( ts ) == "1.0"
+@test ports( ts ) == 4
+@test refs( ts ) == [ 50.0, 50.0, 50.0, 50.0 ]
 
-
-
-@test TS.parse_touchstone_string( """
+ts = TS.parse_touchstone_string( """
   # GHz S RI R 50.0
   1.0 1.11 1.11 1.12 1.12 1.13 1.13 1.14 1.14
   1.15 1.15
@@ -348,7 +362,8 @@ ts = TS.parse_touchstone_string( """
   2.45 2.45
   2.51 2.51 2.52 2.52 2.53 2.53 2.54 2.54
   2.55 2.55
-  """, 5 ) == TS.TS(
+  """, 5 )
+@test ts == TS.TS(
     [
       TS.DataPoint( 1e9,  [
         1.11+1.11im 1.12+1.12im 1.13+1.13im 1.14+1.14im 1.15+1.15im;
@@ -367,8 +382,11 @@ ts = TS.parse_touchstone_string( """
     ],
     TS.Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 )
   )
+@test version( ts ) == "1.0"
+@test ports( ts ) == 5
+@test refs( ts ) == [ 50.0, 50.0, 50.0, 50.0, 50.0 ]
 
-@test TS.parse_touchstone_string( """
+ts = TS.parse_touchstone_string( """
   # GHz S RI R 50.0
   1.0 1.11 1.11 1.12 1.12 1.13 1.13 1.14 1.14
   1.15 1.15 1.16 1.16 1.17 1.17 1.18 1.18
@@ -400,7 +418,8 @@ ts = TS.parse_touchstone_string( """
   1.101 1.101 1.102 1.102 1.103 1.103 1.104 1.104
   1.105 1.105 1.106 1.106 1.107 1.107 1.108 1.108
   1.109 1.109 1.101 1.101
-  """, 10 ) == TS.TS(
+  """, 10 )
+@test ts == TS.TS(
     [
     TS.DataPoint( 1e9,  [
       1.11+1.11im 1.12+1.12im 1.13+1.13im 1.14+1.14im 1.15+1.15im 1.16+1.16im 1.17+1.17im 1.18+1.18im 1.19+1.19im 1.110+1.110im;
@@ -417,4 +436,440 @@ ts = TS.parse_touchstone_string( """
     ],
     TS.Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 )
   )
+@test version( ts ) == "1.0"
+@test ports( ts ) == 10
+@test refs( ts ) == [ 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0 ]
+
 # V2.0
+@test ! TS.is_keyword_line( "!" )
+@test ! TS.is_keyword_line( "#" )
+@test   TS.is_keyword_line( "[Version] 2.0" )
+@test   TS.is_keyword_line( "[Number Of Ports] 17" )
+
+@test TS.parse_keyword_line( "[Version] 2.0" ) == ( :Version, 2 )
+@test TS.parse_keyword_line( "[Number Of Ports] 17" ) == ( :NumberOfPorts, 17 )
+
+ts = TS.parse_touchstone_string( """
+  [Version] 2.0
+  # GHz S MA R 50
+  [Number Of Ports] 1
+  [Number Of Frequencies] 0
+  """ )
+@test ts == TS.TS(
+    DataPoint[],
+    TS.Options(),
+    String[],
+    Dict{ Symbol, Any }(
+      :Version => 2,
+      :NumberOfPorts => 1,
+      :NumberOfFrequencies => 0,
+    ),
+  )
+@test version( ts ) == "2.0"
+@test ports( ts ) == 1
+@test refs( ts ) == [ 50.0 ]
+
+@test_throws ErrorException(
+    "V2.0: [Version] 2.0 before option line expected."
+  ) TS.parse_touchstone_string( """
+    # GHz S MA R 50
+    [Version] 2.0
+    """
+  )
+
+@test_throws ErrorException(
+    "V2.0: Option line before [Number of Ports] keyword expected."
+  ) TS.parse_touchstone_string( """
+    [Version] 2.0
+    [Number Of Ports] 17
+    # GHz S RI R 50
+    """
+  )
+
+@test_throws ErrorException(
+    "V2.0: [Version] keyword before [Two-Port Data Order] keyword expected."
+  ) TS.parse_touchstone_string( """
+    # GHz S RI R 50
+    [Number Of Ports] 2
+    [Two-Port Data Order] 12_21
+    """
+  )
+
+@test_throws ErrorException(
+    "V2.0: Option line before [Number of Frequencies] keyword expected."
+  ) TS.parse_touchstone_string( """
+    [Version] 2.0
+    [Number Of Ports] 2
+    [Number of Frequencies] 12
+    """
+  )
+
+@test_throws ErrorException(
+    "V2.0: [Number of Ports] keyword before [Number of Noise Frequencies] keyword expected."
+  ) TS.parse_touchstone_string( """
+    [Version] 2.0
+    # GHz S RI R 50
+    [Number of Noise Frequencies] 11
+    """
+  )
+
+@test_throws ErrorException(
+    "V2.0: [Network Data] keyword after [Reference] keyword expected."
+  ) TS.parse_touchstone_string( """
+    [Version] 2.0
+    # GHz S RI R 50
+    [Number Of Ports] 1
+    [Number of Frequencies] 1
+    [Network Data]
+    [Reference] 11
+    """
+  )
+
+@test_throws ErrorException(
+    "V2.0: [Noise Data] keyword after [Network Data] keyword expected."
+  ) TS.parse_touchstone_string( """
+    [Version] 2.0
+    # GHz S RI R 50
+    [Number Of Ports] 2
+    [Number of Frequencies] 1
+    [Reference] 11 12
+    [Noise Data]
+    [Network Data]
+    1 2 3 4 5 6 7 8 9
+    [End]
+    """
+  )
+
+@test_throws ErrorException(
+    "V2.0: [Number of Frequencies] keyword before [Network Data] keyword expected."
+  ) TS.parse_touchstone_string( """
+    [Version] 2.0
+    # GHz S RI R 50
+    [Number Of Ports] 1
+    [Reference] 11
+    [Network Data]
+    1.0 2.0 3.0
+    [End]
+    """
+  )
+
+ts = TS.parse_touchstone_string( """
+    [Version] 2.0
+    !1-port Z-parameter file, multiple frequency points
+    # MHz Z MA R 75
+    [Number of Ports] 1
+    [Number of Frequencies] 5
+    !freq magZ11 angZ11
+    [Network Data]
+    100     0.99    -4  !Comment
+    200     0.80    -22
+    300     0.707   -45
+    400     0.40    -62
+    500     0.01    -89
+    [End]
+    """ )
+@test TS.freqs( ts ) ≈ collect( 1:5 ) * 100e6
+@test TS.mags( ts ) ≈ [ 0.99, 0.80, 0.707, 0.4, 0.01 ]
+@test TS.angs( ts ) ≈ [ -4, -22, -45, -62, -89 ]
+@test ts.comments == [ "1-port Z-parameter file, multiple frequency points", "freq magZ11 angZ11", "Comment" ]
+@test ts.keywordparams == Dict{ Symbol, Any }(
+    :Version => 2,
+    :NumberOfPorts => 1,
+    :NumberOfFrequencies => 5,
+    :NetworkData => [],
+    :End  => [],
+  )
+@test version( ts ) == "2.0"
+@test ports( ts ) == 1
+@test refs( ts ) == [ 75.0 ]
+
+@test_throws ErrorException(
+    "V2.0: [Two-Port Data Order] keyword not allowed for 1 port data."
+  ) TS.parse_touchstone_string( """
+    [Version] 2.0
+    # GHz S RI R 50
+    [Number Of Ports] 1
+    [Number of Frequencies] 1
+    [Two-Port Data Order] 12_21
+    [Reference] 11
+    [Network Data]
+    1.0 2.0 3.0
+    [End]
+    """
+  )
+
+@test_throws ErrorException(
+    "V2.0: [Two-Port Data Order] expected for two port data."
+  ) TS.parse_touchstone_string( """
+    [Version] 2.0
+    # GHz S RI R 50
+    [Number Of Ports] 2
+    [Number of Frequencies] 1
+    [Network Data]
+    1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0
+    [End]
+    """
+  )
+
+ts = TS.parse_touchstone_string( """
+  [Version] 2.0
+  # GHz S RI R 50
+  [Number Of Ports] 1
+  [Number of Frequencies] 1
+  [Reference] 11
+  [Network Data]
+  1.0 2.0 3.0
+  [End]
+  """ )
+@test ts == TS.TS(
+    DataPoint[
+      DataPoint(
+        1.0e9,
+        fill( 2.0 + 3.0im, 1, 1 )
+      )
+    ],
+    Options( 1.0e9, :ScatteringParameters, :RealImaginary, 50.0 ),
+    String[],
+    Dict{Symbol,Any}(
+      :NumberOfPorts => 1,
+      :NumberOfFrequencies => 1,
+      :Version => 2,
+      :End => Any[],
+      :NetworkData => Any[],
+      :Reference => [ 11.0 ]
+    )
+  )
+@test version( ts ) == "2.0"
+@test ports( ts ) == 1
+@test refs( ts ) == [ 11.0 ]
+
+ts = TS.parse_touchstone_string( """
+  [Version] 2.0
+  # GHz S RI R 50
+  [Number Of Ports] 2
+  [Number of Frequencies] 1
+  [Two-Port Data Order] 12_21
+  [Reference] 11 12
+  [Network Data]
+  1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0
+  [End]
+  """ )
+@test ts == TS.TS(
+    DataPoint[
+      DataPoint(
+        1.0e9,
+        [ 2.0 + 3.0im 6.0 + 7.0im; 4.0 + 5.0im 8.0 + 9.0im ]
+      )
+    ],
+    Options( 1.0e9, :ScatteringParameters, :RealImaginary, 50.0 ),
+    String[],
+    Dict{Symbol,Any}(
+      :NumberOfPorts => 2,
+      :NumberOfFrequencies => 1,
+      :Version => 2,
+      :End => Any[],
+      :NetworkData => Any[],
+      :Reference => [ 11.0, 12.0 ],
+      :TwoPortDataOrder => "12_21",
+    )
+  )
+@test version( ts ) == "2.0"
+@test ports( ts ) == 2
+@test refs( ts ) == [ 11.0, 12.0 ]
+
+@test_throws ErrorException(
+    "V2.0: 1 parameters for [Reference] expected."
+  ) TS.parse_touchstone_string( """
+    [Version] 2.0
+    # GHz S RI R 50
+    [Number Of Ports] 1
+    [Number of Frequencies] 1
+    [Reference] 11 12
+    [Network Data]
+    1.0 2.0 3.0
+    [End]
+    """
+  )
+
+@test_throws ErrorException(
+    "V2.0: 1 parameters for [Reference] expected."
+  ) TS.parse_touchstone_string( """
+    [Version] 2.0
+    # GHz S RI R 50
+    [Number Of Ports] 1
+    [Number of Frequencies] 1
+    [Reference]
+    11 12
+    [Network Data]
+    1.0 2.0 3.0
+    [End]
+    """
+  )
+
+ts = TS.parse_touchstone_string( """
+  [Version] 2.0
+  # GHz S RI R 50
+  [Number Of Ports] 2
+  [Number of Frequencies] 1
+  [Two-Port Data Order] 12_21
+  [Reference]
+  11 12
+  [Network Data]
+  1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0
+  [End]
+  """ )
+@test ts == TS.TS(
+    DataPoint[
+      DataPoint(
+        1.0e9,
+        [ 2.0 + 3.0im 6.0 + 7.0im; 4.0 + 5.0im 8.0 + 9.0im ]
+      )
+    ],
+    Options( 1.0e9, :ScatteringParameters, :RealImaginary, 50.0 ),
+    String[],
+    Dict{Symbol,Any}(
+      :NumberOfPorts => 2,
+      :NumberOfFrequencies => 1,
+      :Version => 2,
+      :End => Any[],
+      :NetworkData => Any[],
+      :Reference => [ 11.0, 12.0 ],
+      :TwoPortDataOrder => "12_21",
+    )
+  )
+@test version( ts ) == "2.0"
+@test ports( ts ) == 2
+@test refs( ts ) == [ 11.0, 12.0 ]
+
+@test_throws ErrorException(
+    "V2.0: Non empty or comment line found after [End] keyword."
+  ) TS.parse_touchstone_string( """
+    [Version] 2.0
+    # GHz S RI R 50
+    [Number Of Ports] 2
+    [Number of Frequencies] 1
+    [Two-Port Data Order] 12_21
+    [Reference]
+    11 12
+    [Network Data]
+    1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0
+    [End]
+    1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0
+    """
+  )
+
+@test_throws ErrorException(
+    "V2.0: [NoiseData] keyword not allowed for 1 port data."
+  ) TS.parse_touchstone_string( """
+    [Version] 2.0
+    # GHz S RI R 50
+    [Number Of Ports] 1
+    [Number of Frequencies] 1
+    [Network Data]
+    1.0 2.0 3.0
+    [Noise Data]
+    1.0 2.0 3.0 4.0 5.0
+    [End]
+    """
+  )
+
+@test_throws ErrorException(
+    "G parameter format for 1-port files not allowed."
+  ) TS.parse_touchstone_string( """
+    [Version] 2.0
+    # GHz G RI R 50
+    [Number Of Ports] 1
+    [Number of Frequencies] 1
+    [Network Data]
+    1.0 2.0 3.0
+    [End]
+    """
+  )
+@test_throws ErrorException(
+    "H parameter format for 1-port files not allowed."
+  ) TS.parse_touchstone_string( """
+    [Version] 2.0
+    # GHz H RI R 50
+    [Number Of Ports] 1
+    [Number of Frequencies] 1
+    [Network Data]
+    1.0 2.0 3.0
+    [End]
+    """
+  )
+
+@test_throws ErrorException(
+    "[Mixed-Mode Order] keyword for G parameter format not allowed."
+  ) TS.parse_touchstone_string( """
+    [Version] 2.0
+    # GHz G RI R 50
+    [Number Of Ports] 2
+    [Two-Port Data Order] 12_21
+    [Number of Frequencies] 1
+    [Mixed-Mode Order] S1 S2
+    [Network Data]
+    1 2 3 4 5 6 7 8 9
+    [End]
+    """
+  )
+@test_throws ErrorException(
+    "[Mixed-Mode Order] keyword for H parameter format not allowed."
+  ) TS.parse_touchstone_string( """
+    [Version] 2.0
+    # GHz H RI R 50
+    [Number Of Ports] 2
+    [Two-Port Data Order] 12_21
+    [Number of Frequencies] 1
+    [Mixed-Mode Order] S1 S2
+    [Network Data]
+    1 2 3 4 5 6 7 8 9
+    [End]
+    """
+  )
+
+@test_throws ErrorException(
+    "V2.0: Unknown parameter 'bla' for [Two-Port Data Order] keyword."
+  ) TS.parse_touchstone_string( """
+    [Version] 2.0
+    # GHz H RI R 50
+    [Number Of Ports] 2
+    [Two-Port Data Order] bla
+    [Number of Frequencies] 1
+    [Network Data]
+    1 2 3 4 5 6 7 8 9
+    [End]
+    """
+  )
+
+
+ts = TS.parse_touchstone_string( """
+  [Version] 2.0
+  # GHz S RI R 50
+  [Number Of Ports] 2
+  [Number of Frequencies] 1
+  [Two-Port Data Order] 21_12
+  [Network Data]
+  1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0
+  [End]
+  """ )
+@test ts == TS.TS(
+    DataPoint[
+      DataPoint(
+        1.0e9,
+        [ 2.0 + 3.0im 4.0 + 5.0im; 6.0 + 7.0im 8.0 + 9.0im ]
+      )
+    ],
+    Options( 1.0e9, :ScatteringParameters, :RealImaginary, 50.0 ),
+    String[],
+    Dict{Symbol,Any}(
+      :NumberOfPorts => 2,
+      :NumberOfFrequencies => 1,
+      :Version => 2,
+      :End => Any[],
+      :NetworkData => Any[],
+      :TwoPortDataOrder => "21_12",
+    )
+  )
+@test version( ts ) == "2.0"
+@test ports( ts ) == 2
+@test refs( ts ) == [ 50.0, 50.0 ]

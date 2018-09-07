@@ -107,15 +107,6 @@ Returns the value of the characteristic impedance for a valid resistance string 
 parse_resistance_option( option ) = parse( Float64, option )
 
 """
-    is_keyword_line( line )
-
-Checks, if a line is a valid keyword line.
-
-TODO: Needed for Version 2.0, which is not implemented for now.
-"""
-is_keyword_line( line ) = length( line ) > 0 && line[ 1 ] == '['
-
-"""
     is_empy_line( line )
 
 Checks, if a line is empty.
@@ -198,15 +189,15 @@ Returns a data point structure for a vector of numbers from a one-port Touchston
 
 For 3 or more ports, the array should contain exactly 2N² + 1 values.
 """
-function parse_data( vals::Array{Float64}, N, options = Options() )
+function parse_data( vals::Array{Float64}, N, options = Options(), twoPortDataFlipped = true )
   if length( vals ) != 2N * N + 1
-    throw( error( "Wrong number of values!" ) )
+    error( "Wrong number of values!" )
   end
   freq = vals[ 1 ]  * options.unit
   pairs = zip( vals[ 2:2:end - 1 ], vals[ 3:2:end ] )
   converted = map( pair -> ParseConversions[ options.format ]( pair... ), pairs )
   res = reshape( converted, N, N )
-  if N > 2
+  if N > 2 || ( N == 2 && !twoPortDataFlipped )
     res = permutedims( res, [ 2, 1 ] )
   end
   return DataPoint( freq, res )
@@ -218,23 +209,111 @@ end
 Returns a TS structure for a valid Touchstone data stream.
 """
 function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
+  version = 1
   options = Options()
-  first_option_line = true
-  comments = Vector{String}()
-  data = Vector{DataPoint}()
+  option_line_found = false
+  comments = Vector{ String }()
+  data = Vector{ DataPoint }()
   neededValues = 1 + 2ports * ports
-  vals = Vector{Float64}()
+  vals = Vector{ Float64 }()
+  keywordparams = Dict{ Symbol, Any }()
+  networkdata = false
+  noisedata = false
+  twoPortDataFlipped = true
+  referenceNextLine = false
+  endfound = false
   for line in eachline( stream )
-    if is_empy_line( line )
+    if referenceNextLine
+      keywordparams[ :Reference ] = parse_reference( split( line ) )
+      if length( keywordparams[ :Reference ] ) != ports
+        error( "V2.0: $ports parameters for [Reference] expected.")
+      end
+      referenceNextLine = false
+    elseif is_empy_line( line )
       ;# nothing
     elseif is_keyword_line( line )
-      throw( error( "Version 2.0 not implemented!" ) )
+      version = 2
+      keyword, params = parse_keyword_line( line )
+      keywordparams[ keyword ] = params
+      if option_line_found && keyword == :Version
+        error( "V2.0: [Version] 2.0 before option line expected." )
+      end
+      if keyword in unOrderedKeywordSymbols
+        keywordString = keywordSymbolStrings[ keyword ]
+        if !haskey( keywordparams, :Version ) || keywordparams[ :Version ] != 2
+          error( "V2.0: [Version] keyword before [$( keywordString )] keyword expected." )
+        end
+        if !option_line_found
+          error( "V2.0: Option line before [$( keywordString )] keyword expected." )
+        end
+        if !haskey( keywordparams, :NumberOfPorts )
+          error( "V2.0: [Number of Ports] keyword before [$( keywordString )] keyword expected." )
+        end
+        if haskey( keywordparams, :NetworkData )
+          error( "V2.0: [Network Data] keyword after [$( keywordString )] keyword expected." )
+        end
+      end
+      if keyword == :Reference
+        if length( keywordparams[ :Reference ] ) == 0
+          referenceNextLine = true
+        elseif length( keywordparams[ :Reference ] ) != ports
+          error( "V2.0: $ports parameters for [Reference] expected.")
+        end
+      elseif keyword == :NetworkData
+        networkdata = true
+        if haskey( keywordparams, :NoiseData )
+          error( "V2.0: [Noise Data] keyword after [Network Data] keyword expected." )
+        end
+        if !haskey( keywordparams, :NumberOfFrequencies )
+          error( "V2.0: [Number of Frequencies] keyword before [Network Data] keyword expected." )
+        end
+        if ports == 2 && !haskey( keywordparams, :TwoPortDataOrder )
+          error( "V2.0: [Two-Port Data Order] expected for two port data." )
+        end
+      elseif keyword == :NumberOfPorts
+        ports = keywordparams[ :NumberOfPorts ]
+        neededValues = 1 + 2ports * ports
+        if ports != 2
+          if options.parameter in [ :HybridHParameters, :HybridGParameters ]
+            error( "$( parameterstrings[ options.parameter ] ) parameter format for $( ports )-port files not allowed." )
+          end
+        end
+      elseif keyword == :TwoPortDataOrder
+        if ports != 2
+          error( "V2.0: [Two-Port Data Order] keyword not allowed for $(ports) port data." )
+        end
+        dataOrder = keywordparams[ :TwoPortDataOrder ]
+        if dataOrder == "12_21"
+          twoPortDataFlipped = true
+        elseif dataOrder == "21_12"
+          twoPortDataFlipped = false
+        else
+          error( "V2.0: Unknown parameter '$dataOrder' for [Two-Port Data Order] keyword." )
+        end
+      elseif keyword == :MixedModeOrder
+        if options.parameter in [ :HybridHParameters, :HybridGParameters ]
+          error( "[Mixed-Mode Order] keyword for $( parameterstrings[ options.parameter ] ) parameter format not allowed." )
+        end
+      elseif keyword == :NoiseData
+        if ports != 2
+          error( "V2.0: [NoiseData] keyword not allowed for $(ports) port data." )
+        end
+        noisedata   = true
+        networkdata = false
+      elseif keyword == :End
+        networkdata = false
+        noisedata   = false
+        endfound = true
+      end
     elseif is_comment_line( line )
       push!( comments, parse_comment_line( line ) )
-    elseif first_option_line && is_option_line( line )
+    elseif !option_line_found && is_option_line( line )
+      if haskey( keywordparams, :Version ) && keywordparams[ :Version ] == 2 && haskey( keywordparams, :NumberOfPorts )
+        error( "V2.0: Option line before [Number of Ports] keyword expected." )
+      end
       options = parse_option_line( line )
-      first_option_line = false
-    else
+      option_line_found = true
+    elseif !haskey( keywordparams, :Version ) || ( keywordparams[ :Version ] == 2 && networkdata )
       strings = split( line, "!" )
       if length( strings ) > 1
         comment = join( strings[ 2:end ], "!" )
@@ -244,12 +323,21 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
       vals = [ vals; map( s -> parse( Float64, s ), split( line ) ) ]
       nVals = length( vals )
       if nVals >= neededValues
-        push!( data, parse_data( vals, ports, options ) )
+        push!( data, parse_data( vals, ports, options, twoPortDataFlipped ) )
         vals = Vector{Float64}()
       end
+    elseif endfound
+      error( "V2.0: Non empty or comment line found after [End] keyword." )
     end
   end
-  TS( data, options, comments )
+  if haskey( keywordparams, :Version ) && keywordparams[ :Version ] == 2
+    frequs = keywordparams[ :NumberOfFrequencies ]
+    if length( data ) != frequs
+      error( "V2.0: $( frequs ) data rows expected, $( length( data ) ) found." )
+    end
+  end
+  ret = TS( data, options, comments, keywordparams )
+  return ret
 end
 
 """
@@ -273,10 +361,140 @@ function parse_touchstone_file( filename::String, ports::Integer = 0 )
     if ext[ 1 ] == 'S' && ext[ end ] == 'P'
       ports = parse( Int64, ext[ 2:end - 1 ] )
     else
-      throw( error( "File extension ( $( extorig ) ) not recognized, unknown number of ports." ) )
+      error( "File extension ( $( extorig ) ) not recognized, unknown number of ports." )
     end
   end
   open( filename ) do io
     parse_touchstone_stream( open( filename ), ports )
   end
+end
+
+# V2.0
+"Symbols for different keywords"
+const keywordStringSymbols = Dict{ String, Symbol }(
+  "VERSION"         => :Version,
+  "NUMBER OF PORTS" => :NumberOfPorts,
+  "TWO-PORT DATA ORDER"         => :TwoPortDataOrder,
+  "NUMBER OF FREQUENCIES"       => :NumberOfFrequencies,
+  "NUMBER OF NOISE FREQUENCIES" => :NumberOfNoiseFrequencies,
+  "REFERENCE"         => :Reference,
+  "MATRIX FORMAT"     => :MatrixFormat,
+  "MIXED-MODE ORDER"  => :MixedModeOrder,
+  "BEGIN INFORMATION" => :BeginInformation,
+  "END INFORMATION"   => :EndInformation,
+  "NETWORK DATA"      => :NetworkData,
+  "NOISE DATA"        => :NoiseData,
+  "END"   => :End,
+)
+
+const keywordSymbolStrings = Dict{ Symbol, String }(
+  :Version        => "Version",
+  :NumberOfPorts  => "Number of Ports",
+  :TwoPortDataOrder         => "Two-Port Data Order",
+  :NumberOfFrequencies      => "Number of Frequencies",
+  :NumberOfNoiseFrequencies => "Number of Noise Frequencies",
+  :Reference        => "Reference",
+  :MatrixFormat     => "Matrix Format",
+  :MixedModeOrder   => "Mixed-Mode Order",
+  :BeginInformation => "Begin Information",
+  :EndInformation   => "End Information",
+  :NetworkData      => "Network Data",
+  :NoiseData  => "NoiseData",
+  :End        => "End",
+)
+
+const unOrderedKeywordSymbols = [
+  :TwoPortDataOrder,
+  :NumberOfFrequencies,
+  :NumberOfNoiseFrequencies,
+  :Reference,
+  :MatrixFormat,
+  :MixedModeOrder,
+  :BeginInformation,
+  :EndInformation,
+]
+
+"""
+    is_keyword_line( line )
+
+Checks, if a line is a valid keyword line.
+"""
+is_keyword_line( line::String ) = length( line ) > 0 && line[ 1 ] == '['
+
+function parse_N_params( params, N::Integer, type::DataType = String )
+  if length( params ) != N
+    error( "Exactly $( N ) parameter expected." )
+  else
+    if type != String
+      params = map( x -> parse( type, x ), params )
+    end
+    if N == 1
+      params = params[ 1 ]
+    end
+    return params
+  end
+end
+
+
+function parse_N_params( params, type::DataType )
+  N = length( params )
+  if type != String
+    params = map( x -> parse( type, x ), params )
+  end
+end
+
+function parse_version_params( params )
+  versionstring = parse_N_params( params, 1 )
+  if versionstring == "2.0"
+    return 2
+  else
+    error( "Unknown version $( versionstring )" )
+  end
+end
+
+parse_number_of_ports( params ) = parse_N_params( params, 1, Int64 )
+parse_two_port_data_order( params )  = parse_N_params( params, 1 )
+parse_number_of_frequencies( params )       = parse_N_params( params, 1, Int64 )
+parse_number_of_noise_frequencies( params ) = parse_N_params( params, 1, Int64 )
+parse_reference( params )         = parse_N_params( params, Float64 )
+parse_matrix_format( params )     = []
+parse_mixed_mode_order( params )  = []
+parse_begin_information( params ) = []
+parse_end_information( params )   = []
+parse_network_data( params )  = []
+parse_noise_data( params )  = []
+parse_end( params )  = []
+
+const version_param_parsers = Dict{ Symbol, Function }(
+  :Version        => parse_version_params,
+  :NumberOfPorts  => parse_number_of_ports,
+  :TwoPortDataOrder          => parse_two_port_data_order,
+  :NumberOfFrequencies       => parse_number_of_frequencies,
+  :NumberOfNoiseFrequencies  => parse_number_of_noise_frequencies,
+  :Reference      => parse_reference,
+  :MatrixFormat   => parse_matrix_format,
+  :MixedModeOrder => parse_mixed_mode_order,
+  :BeginInformation => parse_begin_information,
+  :EndInformation   => parse_end_information,
+  :NetworkData      => parse_network_data,
+  :NoiseData  => parse_noise_data,
+  :End        => parse_end,
+)
+
+"""
+    parse_keyword_line( line )
+
+Returns the keyword parameters for a keyword line.
+"""
+function parse_keyword_line( line )
+  keyword, paramstring = split( line[ 2:end ], "]" )
+  keyword = uppercase( keyword )
+  params = split( paramstring )
+  if haskey( keywordStringSymbols, keyword )
+    kwSymbol = keywordStringSymbols[ keyword ]
+    params = version_param_parsers[ kwSymbol ]( params )
+  else
+    error( "Not a valid keyword." )
+  end
+  return kwSymbol, params
 end
