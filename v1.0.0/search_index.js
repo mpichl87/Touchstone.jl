@@ -337,6 +337,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "internals.html#Touchstone.keywordStringSymbols",
+    "page": "Internals",
+    "title": "Touchstone.keywordStringSymbols",
+    "category": "constant",
+    "text": "Symbols for different keywords\n\n\n\n\n\n"
+},
+
+{
     "location": "internals.html#Touchstone.parameters",
     "page": "Internals",
     "title": "Touchstone.parameters",
@@ -473,11 +481,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "internals.html#Touchstone.is_keyword_line-Tuple{Any}",
+    "location": "internals.html#Touchstone.is_keyword_line-Tuple{String}",
     "page": "Internals",
     "title": "Touchstone.is_keyword_line",
     "category": "method",
-    "text": "is_keyword_line( line )\n\nChecks, if a line is a valid keyword line.\n\nTODO: Needed for Version 2.0, which is not implemented for now.\n\n\n\n\n\n"
+    "text": "is_keyword_line( line )\n\nChecks, if a line is a valid keyword line.\n\n\n\n\n\n"
 },
 
 {
@@ -566,6 +574,14 @@ var documenterSearchIndex = {"docs": [
     "title": "Touchstone.parse_frequency_unit_option",
     "category": "method",
     "text": "parse_frequency_unit_option( option )\n\nReturns the multiplier for a unit string in an option line.\n\n\n\n\n\n"
+},
+
+{
+    "location": "internals.html#Touchstone.parse_keyword_line-Tuple{Any}",
+    "page": "Internals",
+    "title": "Touchstone.parse_keyword_line",
+    "category": "method",
+    "text": "parse_keyword_line( line )\n\nReturns the keyword parameters for a keyword line.\n\n\n\n\n\n"
 },
 
 {
