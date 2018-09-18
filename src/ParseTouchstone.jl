@@ -320,9 +320,17 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
         push!( comments, comment )
         line = strings[ 1 ]
       end
-      vals = [ vals; map( s -> parse( Float64, s ), split( line ) ) ]
-      nVals = length( vals )
-      if nVals >= neededValues
+      newVals = map( s -> parse( Float64, s ), split( line ) )
+      if version == 1
+        # V1.0: not more then 4 value pairs per line. (#7)
+        # The first  line contains the frequency.
+        maxVals = length( vals ) == 0 ? 9 : 8
+        if length( newVals ) > maxVals
+          error( "V1.0: more than four complex values in one parameter line." )
+        end
+      end
+      vals = [ vals; newVals ]
+      if length( vals ) >= neededValues
         push!( data, parse_data( vals, ports, options, twoPortDataFlipped ) )
         vals = Vector{Float64}()
       end

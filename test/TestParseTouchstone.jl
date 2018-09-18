@@ -440,6 +440,22 @@ ts = TS.parse_touchstone_string( """
 @test ports( ts ) == 10
 @test refs( ts ) == [ 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0 ]
 
+@test_throws ErrorException(
+    "V1.0: more than four complex values in one parameter line."
+  ) ts = TS.parse_touchstone_string( """
+    # GHz S RI R 50.0
+    1.0 1.11 1.11 1.12 1.12 1.13 1.13 1.14 1.14 1.15
+    """, 5 )
+
+@test_throws ErrorException(
+    "V1.0: more than four complex values in one parameter line."
+  ) ts = TS.parse_touchstone_string( """
+    # GHz S RI R 50.0
+    1.0 1.11 1.11 1.12 1.12 1.13 1.13 1.14 1.14
+    1.15 1.15
+    1.21 1.21 1.22 1.22 1.23 1.23 1.24 1.24 1.25 1.25
+    """, 5 )
+
 # V2.0
 @test ! TS.is_keyword_line( "!" )
 @test ! TS.is_keyword_line( "#" )
