@@ -1,7 +1,7 @@
 # Touchstone
 
 [![Build Status Linux](https://travis-ci.org/mpichl87/Touchstone.jl.svg?branch=master)](https://travis-ci.org/mpichl87/Touchstone.jl)
-[![Build Status Windows](https://ci.appveyor.com/api/projects/status/github/mpichl87/Touchstone.jl)](https://ci.appveyor.com/project/mpichl87/touchstone-jl)
+[![Build Status Windows](https://ci.appveyor.com/api/projects/status/github/mpichl87/Touchstone.jl?svg=true)](https://ci.appveyor.com/project/mpichl87/touchstone-jl?svg=true)
 [![Coverage Status](https://coveralls.io/repos/github/mpichl87/Touchstone.jl/badge.svg?branch=master)](https://coveralls.io/github/mpichl87/Touchstone.jl?branch=master)
 [![codecov](https://codecov.io/gh/mpichl87/Touchstone.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/mpichl87/Touchstone.jl)
 [![Stable Doc](https://img.shields.io/badge/docs-stable-blue.svg)](https://mpichl87.github.io/Touchstone.jl/stable)
