@@ -147,7 +147,7 @@
   ]
 
 
-@test   TS.parse_touchstone_string( "" ) == TS.TS()
+@test   TS.parse_touchstone_string( "" ) == TS.TS( DataPoint[] )
 
 @test   TS.parse_touchstone_string( """
     !Test

@@ -51,7 +51,7 @@
   14.0 0.0 15.0 0.0 16.0 0.0 17.0 0.0
   """
 
-@test TS.write_touchstone_string( TS.TS() ) == """
+@test TS.write_touchstone_string( TS.TS( DataPoint[] ) ) == """
   # GHz S MA R 50.0
   """
 

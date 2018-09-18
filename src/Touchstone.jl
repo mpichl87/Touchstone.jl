@@ -45,13 +45,18 @@ struct TS
   options::Options
   comments::Vector{ String }
   keywordparams::Dict{ Symbol, Any }
+  function TS(
+    data,
+    options = Options(),
+    comments = Vector{ String }(),
+    keywordparams  = Dict{ Symbol, Any }()
+  )
+    if !issorted( data, by=x -> x.frequency )
+      error( "Frequencies of data vector not in ascending order." )
+    end
+    new( data, options, comments, keywordparams )
+  end
 end
-TS(
-  data = Vector{ DataPoint }(),
-  options::Options = Options(),
-  comments = Vector{ String }(),
-  keywordparams = Dict{ Symbol, Any }()
-) = TS( data, options, comments, keywordparams )
 
 "Compares Touchstone data."
 function ==( ts1, ts2 :: TS )
