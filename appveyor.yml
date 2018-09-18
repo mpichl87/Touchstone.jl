@@ -3,6 +3,8 @@ environment:
   - JULIA_URL: "https://julialang-s3.julialang.org/bin/winnt/x64/0.7/julia-0.7.0-win64.exe"
   - JULIA_URL: "https://julialang-s3.julialang.org/bin/winnt/x64/1.0/julia-1.0.0-win64.exe"
   - JULIA_URL: "https://julialangnightlies-s3.julialang.org/bin/winnt/x64/julia-latest-win64.exe"
+  REPO_TOKEN:
+    secure: 47q9I/sEl6PEg+KbLEYy1Lgs7Lbq9Tg3XbGXAdEQGTNGgVP+3HIizJgdql9aS8T0
 
 # uncomment the following lines to allow failures on nightly julia
 # (tests will run but not make your overall status red)
@@ -41,7 +43,7 @@ build_script:
   - C:\projects\julia\bin\julia -e "using Pkg; Pkg.clone(pwd(), \"Touchstone\"); Pkg.build(\"Touchstone\")"
 
 test_script:
-  - C:\projects\julia\bin\julia -e "using Pkg; Pkg.test(\"Touchstone\")"
+  - C:\projects\julia\bin\julia -e "using Pkg; Pkg.test(\"Touchstone\", coverage=true)"
 
 after_test:
 - C:\projects\julia\bin\julia -e "cd(Pkg.dir(\"Touchstone\")); Pkg.add(\"Coverage\"); using Coverage; Coveralls.submit(process_folder())"
