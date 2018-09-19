@@ -206,7 +206,7 @@ end
 """
     parse_touchstone_stream( stream, [ ports ] )
 
-Returns a TS structure for a valid Touchstone data stream.
+Returns a TouchstoneData structure for a valid Touchstone data stream.
 """
 function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
   version = 1
@@ -214,11 +214,12 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
   option_line_found = false
   comments = Vector{ String }()
   data = Vector{ DataPoint }()
+  noiseData = Vector{ NoiseDataPoint }()
   neededValues = 1 + 2ports * ports
   vals = Vector{ Float64 }()
   keywordparams = Dict{ Symbol, Any }()
   networkdata = false
-  noisedata = false
+  noiseDataExpected = false
   twoPortDataFlipped = true
   referenceNextLine = false
   endfound = false
@@ -298,11 +299,11 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
         if ports != 2
           error( "V2.0: [NoiseData] keyword not allowed for $(ports) port data." )
         end
-        noisedata   = true
+        noiseDataExpected   = true
         networkdata = false
       elseif keyword == :End
         networkdata = false
-        noisedata   = false
+        noiseDataExpected   = false
         endfound = true
       end
     elseif is_comment_line( line )
@@ -349,21 +350,21 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
       error( "V2.0: $( frequs ) data rows expected, $( length( data ) ) found." )
     end
   end
-  ret = TS( data, options, comments, keywordparams )
+  ret = TouchstoneData( data, noiseData, options, comments, keywordparams )
   return ret
 end
 
 """
     parse_touchstone_string( in, [ ports ] )
 
-Returns a TS structure for a valid Touchstone data string.
+Returns a TouchstoneData structure for a valid Touchstone data string.
 """
 parse_touchstone_string( in::String, ports::Integer = 1 ) = parse_touchstone_stream( IOBuffer( in ), ports )
 
 """
     parse_touchstone_file( filename, [ ports ] )
 
-Returns a TS structure for a valid Touchstone data file.
+Returns a TouchstoneData structure for a valid Touchstone data file.
 
 When called without ports, tries to interpret the file extension, such as ".s2p", or ".S4P".
 """

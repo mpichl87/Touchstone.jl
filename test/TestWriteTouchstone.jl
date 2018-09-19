@@ -1,40 +1,40 @@
 @test   TS.write_comment_line( "" ) == "!"
 @test   TS.write_comment_line( "comment" ) == "!comment"
 
-@test   TS.write_option_line( TS.Options( 1e9, :ScatteringParameters, :MagnitudeAngle, 50   ) ) == "# GHz S MA R 50.0"
-@test   TS.write_option_line( TS.Options( 1e3, :ScatteringParameters, :MagnitudeAngle, 50.0 ) ) == "# kHz S MA R 50.0"
-@test   TS.write_option_line( TS.Options( 1e6, :AdmittanceParameters, :MagnitudeAngle, 50.0 ) ) == "# MHz Y MA R 50.0"
-@test   TS.write_option_line( TS.Options( 1e9, :ImpedanceParameters,  :DecibelAngle,   50.0 ) ) == "# GHz Z dB R 50.0"
-@test   TS.write_option_line( TS.Options( 1.0, :HybridHParameters,    :RealImaginary,   1.0 ) ) == "# Hz H RI R 1.0"
-@test   TS.write_option_line( TS.Options( 1.0, :HybridGParameters,    :RealImaginary,  50.0 ) ) == "# Hz G RI R 50.0"
+@test   TS.write_option_line( Options( 1e9, :ScatteringParameters, :MagnitudeAngle, 50   ) ) == "# GHz S MA R 50.0"
+@test   TS.write_option_line( Options( 1e3, :ScatteringParameters, :MagnitudeAngle, 50.0 ) ) == "# kHz S MA R 50.0"
+@test   TS.write_option_line( Options( 1e6, :AdmittanceParameters, :MagnitudeAngle, 50.0 ) ) == "# MHz Y MA R 50.0"
+@test   TS.write_option_line( Options( 1e9, :ImpedanceParameters,  :DecibelAngle,   50.0 ) ) == "# GHz Z dB R 50.0"
+@test   TS.write_option_line( Options( 1.0, :HybridHParameters,    :RealImaginary,   1.0 ) ) == "# Hz H RI R 1.0"
+@test   TS.write_option_line( Options( 1.0, :HybridGParameters,    :RealImaginary,  50.0 ) ) == "# Hz G RI R 50.0"
 
 @test TS.write_data(
-  TS.DataPoint( 1.0, fill( 2.0 + 3im, 1, 1 ) ), 1,
-  TS.Options( 1.0, :ScatteringParameters, :RealImaginary, 1.0 )
+  DataPoint( 1.0, fill( 2.0 + 3im, 1, 1 ) ), 1,
+  Options( 1.0, :ScatteringParameters, :RealImaginary, 1.0 )
 ) == "1.0 2.0 3.0\n"
 
 @test TS.write_data(
-  TS.DataPoint( 1e9, fill( cis( π / 2 ), 1, 1 ) ), 1,
-  TS.Options( 1e9, :ScatteringParameters, :MagnitudeAngle, 1.0 )
+  DataPoint( 1e9, fill( cis( π / 2 ), 1, 1 ) ), 1,
+  Options( 1e9, :ScatteringParameters, :MagnitudeAngle, 1.0 )
 ) == "1.0 1.0 90.0\n"
 
 @test TS.write_data(
-  TS.DataPoint( 1e9, fill( 10cis( π / 2 ), 1, 1 ) ), 1,
-  TS.Options( 1e9, :ScatteringParameters, :DecibelAngle, 1.0 )
+  DataPoint( 1e9, fill( 10cis( π / 2 ), 1, 1 ) ), 1,
+  Options( 1e9, :ScatteringParameters, :DecibelAngle, 1.0 )
 ) == """
   1.0 20.0 90.0
   """
 
 @test TS.write_data(
-  TS.DataPoint( 1.0, [ 2.0 3.0; 4.0 5.0 ] ), 2,
-  TS.Options( 1.0, :ScatteringParameters, :RealImaginary, 1.0 )
+  DataPoint( 1.0, [ 2.0 3.0; 4.0 5.0 ] ), 2,
+  Options( 1.0, :ScatteringParameters, :RealImaginary, 1.0 )
 ) == """
   1.0 2.0 0.0 4.0 0.0 3.0 0.0 5.0 0.0
   """
 
 @test TS.write_data(
-  TS.DataPoint( 1.0, [ 2.0 3.0 4.0; 5.0 6.0 7.0; 8.0 9.0 10.0 ] ), 3,
-  TS.Options( 1.0, :ScatteringParameters, :RealImaginary, 1.0 )
+  DataPoint( 1.0, [ 2.0 3.0 4.0; 5.0 6.0 7.0; 8.0 9.0 10.0 ] ), 3,
+  Options( 1.0, :ScatteringParameters, :RealImaginary, 1.0 )
 ) == """
   1.0 2.0 0.0 3.0 0.0 4.0 0.0
   5.0 0.0 6.0 0.0 7.0 0.0
@@ -42,8 +42,8 @@
   """
 
 @test TS.write_data(
-  TS.DataPoint( 1.0, [ 2.0 3.0 4.0 5.0; 6.0 7.0 8.0 9.0; 10.0 11.0 12.0 13.0; 14.0 15.0 16.0 17.0 ] ), 4,
-  TS.Options( 1.0, :ScatteringParameters, :RealImaginary, 1.0 )
+  DataPoint( 1.0, [ 2.0 3.0 4.0 5.0; 6.0 7.0 8.0 9.0; 10.0 11.0 12.0 13.0; 14.0 15.0 16.0 17.0 ] ), 4,
+  Options( 1.0, :ScatteringParameters, :RealImaginary, 1.0 )
 ) == """
   1.0 2.0 0.0 3.0 0.0 4.0 0.0 5.0 0.0
   6.0 0.0 7.0 0.0 8.0 0.0 9.0 0.0
@@ -51,32 +51,33 @@
   14.0 0.0 15.0 0.0 16.0 0.0 17.0 0.0
   """
 
-@test TS.write_touchstone_string( TS.TS( DataPoint[] ) ) == """
+@test write_touchstone_string( TouchstoneData( DataPoint[] ) ) == """
   # GHz S MA R 50.0
   """
 
-@test TS.write_touchstone_string( TS.TS( DataPoint[], TS.Options(), [ "Test" ] ) ) == """
+@test write_touchstone_string( TouchstoneData( DataPoint[], NoiseDataPoint[], Options(), [ "Test" ] ) ) == """
   !Test
   # GHz S MA R 50.0
   """
 
-@test TS.write_touchstone_string( TS.TS(
-  DataPoint[], TS.Options( 1.0, :HybridGParameters, :RealImaginary, 50.0 ), [ "Test1", "Test2" ] ) ) == """
+@test write_touchstone_string( TouchstoneData(
+  DataPoint[], NoiseDataPoint[], Options( 1.0, :HybridGParameters, :RealImaginary, 50.0 ), [ "Test1", "Test2" ] ) ) == """
   !Test1
   !Test2
   # Hz G RI R 50.0
   """
 
-@test TS.write_touchstone_string(
-  TS.TS(
+@test write_touchstone_string(
+  TouchstoneData(
     [
-      TS.DataPoint( 100e6, fill( 0.99cis(   -4π / 180 ), 1, 1 ) ),
-      TS.DataPoint( 200e6, fill( 0.80cis(  -22π / 180 ), 1, 1 ) ),
-      TS.DataPoint( 300e6, fill( 0.707cis( -45π / 180 ), 1, 1 ) ),
-      TS.DataPoint( 400e6, fill( 0.40cis(  -62π / 180 ), 1, 1 ) ),
-      TS.DataPoint( 500e6, fill( 0.01cis(  -89π / 180 ), 1, 1 ) ),
+      DataPoint( 100e6, fill( 0.99cis(   -4π / 180 ), 1, 1 ) ),
+      DataPoint( 200e6, fill( 0.80cis(  -22π / 180 ), 1, 1 ) ),
+      DataPoint( 300e6, fill( 0.707cis( -45π / 180 ), 1, 1 ) ),
+      DataPoint( 400e6, fill( 0.40cis(  -62π / 180 ), 1, 1 ) ),
+      DataPoint( 500e6, fill( 0.01cis(  -89π / 180 ), 1, 1 ) ),
     ],
-    TS.Options( 1e6, :ScatteringParameters, :MagnitudeAngle, 75.0 ),
+    NoiseDataPoint[],
+    Options( 1e6, :ScatteringParameters, :MagnitudeAngle, 75.0 ),
     [ "Test1", "freq magZ11 angZ11" ]
   )
 ) == """
@@ -90,23 +91,24 @@
   500.0 0.010000000000000002 -89.00000000000001
   """
 
-  @test TS.write_touchstone_string(
-    TS.TS(
+  @test write_touchstone_string(
+    TouchstoneData(
       [
-        TS.DataPoint( 1e9,  [
+        DataPoint( 1e9,  [
           0.3926-0.1211im -0.0003-0.0021im;
           -0.0003-0.0021im 0.3926-0.1211im
         ] ),
-        TS.DataPoint( 2e9,  [
+        DataPoint( 2e9,  [
           0.3517-0.3054im -0.0096-0.0298im;
           -0.0096-0.0298im 0.3517-0.3054im
         ] ),
-        TS.DataPoint( 10e9, [
+        DataPoint( 10e9, [
           0.3419+0.3336im -0.0134+0.0379im;
           -0.0134+0.0379im 0.3419+0.3336im
         ] ),
       ],
-      TS.Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 ),
+      NoiseDataPoint[],
+      Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 ),
       [
         "2-port S-parameter file, three frequency points",
         "freq   ReS11   ImS11   ReS21   ImS21   ReS12   ImS12   ReS22   ImS22",
@@ -121,19 +123,20 @@
   10.0 0.3419 0.3336 -0.0134 0.0379 -0.0134 0.0379 0.3419 0.3336
   """
 
-@test TS.write_touchstone_string(
-  TS.TS(
+@test write_touchstone_string(
+  TouchstoneData(
     [
-      TS.DataPoint( 1e9,  [
+      DataPoint( 1e9,  [
         1.11+1.11im 1.12+1.12im;
         1.21+1.21im 1.22+1.22im
       ] ),
-      TS.DataPoint( 2e9,  [
+      DataPoint( 2e9,  [
         2.11+2.11im 2.12+2.12im;
         2.21+2.21im 2.22+2.22im
       ] ),
     ],
-    TS.Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 )
+    NoiseDataPoint[],
+    Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 )
   )
 ) == """
   # GHz S RI R 50.0
@@ -141,21 +144,22 @@
   2.0 2.11 2.11 2.21 2.21 2.12 2.12 2.22 2.22
   """
 
-@test TS.write_touchstone_string(
-  TS.TS(
+@test write_touchstone_string(
+  TouchstoneData(
     [
-      TS.DataPoint( 1e9,  [
+      DataPoint( 1e9,  [
         1.11+1.11im 1.12+1.12im 1.13+1.13im;
         1.21+1.21im 1.22+1.22im 1.23+1.23im;
         1.31+1.31im 1.32+1.32im 1.33+1.33im;
       ] ),
-      TS.DataPoint( 2e9,  [
+      DataPoint( 2e9,  [
         2.11+2.11im 2.12+2.12im 2.13+2.13im;
         2.21+2.21im 2.22+2.22im 2.23+2.23im;
         2.31+2.31im 2.32+2.32im 2.33+2.33im;
       ] ),
     ],
-    TS.Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 )
+    NoiseDataPoint[],
+    Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 )
   )
 ) == """
   # GHz S RI R 50.0
@@ -167,23 +171,24 @@
   2.31 2.31 2.32 2.32 2.33 2.33
   """
 
-@test TS.write_touchstone_string(
-  TS.TS(
+@test write_touchstone_string(
+  TouchstoneData(
     [
-      TS.DataPoint( 1e9,  [
+      DataPoint( 1e9,  [
         1.11+1.11im 1.12+1.12im 1.13+1.13im 1.14+1.14im;
         1.21+1.21im 1.22+1.22im 1.23+1.23im 1.24+1.24im;
         1.31+1.31im 1.32+1.32im 1.33+1.33im 1.34+1.34im;
         1.41+1.41im 1.42+1.42im 1.43+1.43im 1.44+1.44im;
       ] ),
-      TS.DataPoint( 2e9,  [
+      DataPoint( 2e9,  [
         2.11+2.11im 2.12+2.12im 2.13+2.13im 2.14+2.14im;
         2.21+2.21im 2.22+2.22im 2.23+2.23im 2.24+2.24im;
         2.31+2.31im 2.32+2.32im 2.33+2.33im 2.34+2.34im;
         2.41+2.41im 2.42+2.42im 2.43+2.43im 2.44+2.44im;
       ] ),
     ],
-    TS.Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 )
+    NoiseDataPoint[],
+    Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 )
   )
 ) == """
   # GHz S RI R 50.0
@@ -197,17 +202,17 @@
   2.41 2.41 2.42 2.42 2.43 2.43 2.44 2.44
   """
 
-@test TS.write_touchstone_string(
-  TS.TS(
+@test write_touchstone_string(
+  TouchstoneData(
     [
-      TS.DataPoint( 1e9,  [
+      DataPoint( 1e9,  [
         1.11+1.11im 1.12+1.12im 1.13+1.13im 1.14+1.14im 1.15+1.15im;
         1.21+1.21im 1.22+1.22im 1.23+1.23im 1.24+1.24im 1.25+1.25im;
         1.31+1.31im 1.32+1.32im 1.33+1.33im 1.34+1.34im 1.35+1.35im;
         1.41+1.41im 1.42+1.42im 1.43+1.43im 1.44+1.44im 1.45+1.45im;
         1.51+1.51im 1.52+1.52im 1.53+1.53im 1.54+1.54im 1.55+1.55im;
       ] ),
-      TS.DataPoint( 2e9,  [
+      DataPoint( 2e9,  [
         2.11+2.11im 2.12+2.12im 2.13+2.13im 2.14+2.14im 2.15+2.15im;
         2.21+2.21im 2.22+2.22im 2.23+2.23im 2.24+2.24im 2.25+2.25im;
         2.31+2.31im 2.32+2.32im 2.33+2.33im 2.34+2.34im 2.35+2.35im;
@@ -215,7 +220,8 @@
         2.51+2.51im 2.52+2.52im 2.53+2.53im 2.54+2.54im 2.55+2.55im;
       ] ),
     ],
-    TS.Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 )
+    NoiseDataPoint[],
+    Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 )
   )
 ) == """
   # GHz S RI R 50.0
@@ -243,10 +249,10 @@
 
 
 
-  @test TS.write_touchstone_string(
-    TS.TS(
+  @test write_touchstone_string(
+    TouchstoneData(
       [
-        TS.DataPoint( 1e9,  [
+        DataPoint( 1e9,  [
           1.11+1.11im 1.12+1.12im 1.13+1.13im 1.14+1.14im 1.15+1.15im 1.16+1.16im 1.17+1.17im 1.18+1.18im 1.19+1.19im 1.110+1.110im;
           1.21+1.21im 1.22+1.22im 1.23+1.23im 1.24+1.24im 1.25+1.25im 1.26+1.26im 1.27+1.27im 1.28+1.28im 1.29+1.29im 1.210+1.210im;
           1.31+1.31im 1.32+1.32im 1.33+1.33im 1.34+1.34im 1.35+1.35im 1.36+1.36im 1.37+1.37im 1.38+1.38im 1.39+1.39im 1.310+1.310im;
@@ -259,7 +265,8 @@
           1.101+1.101im 1.102+1.102im 1.103+1.103im 1.104+1.104im 1.105+1.105im 1.106+1.106im 1.107+1.107im 1.108+1.108im 1.109+1.109im 1.1010+1.1010im;
         ] ),
       ],
-      TS.Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 )
+      NoiseDataPoint[],
+      Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 )
     )
   ) == """
     # GHz S RI R 50.0
@@ -294,81 +301,3 @@
     1.105 1.105 1.106 1.106 1.107 1.107 1.108 1.108
     1.109 1.109 1.101 1.101
     """
-#
-# a = """
-#   # GHz S RI R 50.0
-#   1.0 1.11 1.11 1.12 1.12 1.13 1.13 1.14 1.14
-#   1.15 1.15 1.16 1.16 1.17 1.17 1.18 1.18
-#   1.19 1.19 1.11 1.11
-#   1.21 1.21 1.22 1.22 1.23 1.23 1.24 1.24
-#   1.25 1.25 1.26 1.26 1.27 1.27 1.28 1.28
-#   1.29 1.29 1.21 1.21
-#   1.31 1.31 1.32 1.32 1.33 1.33 1.34 1.34
-#   1.35 1.35 1.36 1.36 1.37 1.37 1.38 1.38
-#   1.39 1.39 1.31 1.31
-#   1.41 1.41 1.42 1.42 1.43 1.43 1.44 1.44
-#   1.45 1.45 1.46 1.46 1.47 1.47 1.48 1.48
-#   1.49 1.49 1.41 1.41
-#   1.51 1.51 1.52 1.52 1.53 1.53 1.54 1.54
-#   1.55 1.55 1.56 1.56 1.57 1.57 1.58 1.58
-#   1.59 1.59 1.51 1.51
-#   1.61 1.61 1.62 1.62 1.63 1.63 1.64 1.64
-#   1.65 1.65 1.66 1.66 1.67 1.67 1.68 1.68
-#   1.69 1.69 1.61 1.61
-#   1.71 1.71 1.72 1.72 1.73 1.73 1.74 1.74
-#   1.75 1.75 1.76 1.76 1.77 1.77 1.78 1.78
-#   1.79 1.79 1.71 1.71
-#   1.81 1.81 1.82 1.82 1.83 1.83 1.84 1.84
-#   1.85 1.85 1.86 1.86 1.87 1.87 1.88 1.88
-#   1.89 1.89 1.81 1.81
-#   1.91 1.91 1.92 1.92 1.93 1.93 1.94 1.94
-#   1.95 1.95 1.96 1.96 1.97 1.97 1.98 1.98
-#   1.99 1.99 1.91 1.91
-#   1.101 1.101 1.102 1.102 1.103 1.103 1.104 1.104
-#   1.105 1.105 1.106 1.106 1.107 1.107 1.108 1.108
-#   1.109 1.109 1.101 1.101
-#   """
-#
-# b = """
-#   # GHz S RI R 50.0
-#   1.0 1.11 1.11 1.12 1.12 1.13 1.13 1.14 1.14
-#   1.15 1.15 1.16 1.16 1.17 1.17 1.18 1.18
-#   1.19 1.19 1.11 1.11
-#   1.21 1.21 1.22 1.22 1.23 1.23 1.24 1.24
-#   1.25 1.25 1.26 1.26 1.27 1.27 1.28 1.28
-#   1.29 1.29 1.21 1.21
-#   1.31 1.31 1.32 1.32 1.33 1.13 1.34 1.34
-#   1.35 1.35 1.36 1.36 1.37 1.37 1.38 1.38
-#   1.39 1.39 1.31 1.31
-#   1.41 1.41 1.42 1.42 1.43 1.43 1.44 1.44
-#   1.45 1.45 1.46 1.46 1.47 1.47 1.48 1.48
-#   1.49 1.49 1.41 1.41
-#   1.51 1.51 1.52 1.52 1.53 1.53 1.54 1.54
-#   1.55 1.55 1.56 1.56 1.57 1.57 1.58 1.58
-#   1.59 1.59 1.51 1.51
-#   1.61 1.61 1.62 1.62 1.63 1.63 1.64 1.64
-#   1.65 1.65 1.66 1.66 1.67 1.67 1.68 1.68
-#   1.69 1.69 1.61 1.61
-#   1.71 1.71 1.72 1.72 1.73 1.73 1.74 1.74
-#   1.75 1.75 1.76 1.76 1.77 1.77 1.78 1.78
-#   1.79 1.79 1.71 1.71
-#   1.81 1.81 1.82 1.82 1.83 1.83 1.84 1.84
-#   1.85 1.85 1.86 1.86 1.87 1.87 1.88 1.88
-#   1.89 1.89 1.81 1.81
-#   1.91 1.91 1.92 1.92 1.93 1.93 1.94 1.94
-#   1.95 1.95 1.96 1.96 1.97 1.97 1.98 1.98
-#   1.99 1.99 1.91 1.91
-#   1.101 1.101 1.102 1.102 1.103 1.103 1.104 1.104
-#   1.105 1.105 1.106 1.106 1.107 1.107 1.108 1.108
-#   1.109 1.109 1.101 1.101
-#   """
-#
-# for i in 1:length( a )
-#   if a[ i ] != b[ i ]
-#     println( i )
-#   end
-# end
-#
-# a[ 250:265 ]
-#
-# b[ 250:265 ]

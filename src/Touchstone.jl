@@ -2,7 +2,7 @@ module Touchstone
 
 import Base: ==, ≈
 
-export Options, DataPoint, TS, freqs, params, param, mags, dBmags, angs, reals, imags
+export Options, DataPoint, NoiseDataPoint, TouchstoneData, freqs, params, param, mags, dBmags, angs, reals, imags
 export version, ports, refs
 export parse_touchstone_stream, parse_touchstone_string, parse_touchstone_file
 export write_touchstone_stream, write_touchstone_string, write_touchstone_file
@@ -39,14 +39,35 @@ function ≈( dp1, dp2 :: DataPoint )
   dp1.parameter ≈ dp2.parameter
 end
 
+struct NoiseDataPoint
+  frequency::Float64
+  minNoiseFigure::Float64
+  reflCoeff::Complex{Float64}
+  effNoiseRes::Float64
+end
+function ==( dp1, dp2 :: NoiseDataPoint )
+  dp1.frequency == dp2.frequency &&
+  dp1.minNoiseFigure == dp2.minNoiseFigure &&
+  dp1.reflCoeff == dp2.reflCoeff &&
+  dp1.effNoiseRes == dp2.effNoiseRes
+end
+function ≈( dp1, dp2 :: NoiseDataPoint )
+  dp1.frequency ≈ dp2.frequency &&
+  dp1.minNoiseFigure ≈ dp2.minNoiseFigure &&
+  dp1.reflCoeff ≈ dp2.reflCoeff &&
+  dp1.effNoiseRes ≈ dp2.effNoiseRes
+end
+
 "Holds data for Touchstone file."
-struct TS
+struct TouchstoneData
   data::Vector{ DataPoint }
+  noiseData::Vector{ NoiseDataPoint }
   options::Options
   comments::Vector{ String }
   keywordparams::Dict{ Symbol, Any }
-  function TS(
+  function TouchstoneData(
     data,
+    noiseData = Vector{ NoiseDataPoint }(),
     options = Options(),
     comments = Vector{ String }(),
     keywordparams  = Dict{ Symbol, Any }()
@@ -54,13 +75,17 @@ struct TS
     if !issorted( data, by=x -> x.frequency )
       error( "Frequencies of data vector not in ascending order." )
     end
-    new( data, options, comments, keywordparams )
+    if !issorted( noiseData, by=x -> x.frequency )
+      error( "Frequencies of noise data vector not in ascending order." )
+    end
+    new( data, noiseData, options, comments, keywordparams )
   end
 end
 
 "Compares Touchstone data."
-function ==( ts1, ts2 :: TS )
+function ==( ts1, ts2 :: TouchstoneData )
     ts1.data == ts2.data &&
+    ts1.noiseData == ts2.noiseData &&
     ts1.options == ts2.options &&
     ts1.comments == ts2.comments &&
     ts1.keywordparams == ts2.keywordparams
@@ -71,59 +96,59 @@ end
 
 Gets the frequency vector from Touchstone data.
 """
-freqs( ts::TS ) = map( dp -> dp.frequency, ts.data )
+freqs( ts::TouchstoneData ) = map( dp -> dp.frequency, ts.data )
 
 """
     params( ts )
 
 Gets the vector of parameter matrices from Touchstone data.
 """
-params( ts::TS ) = map( dp -> dp.parameter, ts.data )
+params( ts::TouchstoneData ) = map( dp -> dp.parameter, ts.data )
 
 """
     param( ts, p1, p2 )
 
 Gets the vector of parameters with indices p1, p2 from Touchstone data.
 """
-param( ts::TS, p1 = 1, p2 = 1 ) = map( dp -> dp.parameter[ p1, p2 ], ts.data )
+param( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( dp -> dp.parameter[ p1, p2 ], ts.data )
 
 """
     mags( ts, p1, p2 )
 
 Gets the vector of the magnitudes of parameters with indices p1, p2 from Touchstone data.
 """
-mags( ts::TS, p1 = 1, p2 = 1 ) = map( abs, param( ts, p1, p2 ) )
+mags( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( abs, param( ts, p1, p2 ) )
 
 """
     dBmags( ts, p1, p2 )
 
 Gets the vector of the magnitudes in dB of parameters with indices p1, p2 from Touchstone data.
 """
-dBmags( ts::TS, p1 = 1, p2 = 1 ) = map( x -> 20log10( abs( x ) ), param( ts, p1, p2 ) )
+dBmags( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( x -> 20log10( abs( x ) ), param( ts, p1, p2 ) )
 
 """
     angs( ts, p1, p2 )
 
 Gets the vector of the angles in radians of parameters with indices p1, p2 from Touchstone data.
 """
-angs( ts::TS, p1 = 1, p2 = 1 ) = map( p -> rad2deg( angle( p ) ), param( ts, p1, p2 ) )
+angs( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( p -> rad2deg( angle( p ) ), param( ts, p1, p2 ) )
 
 """
     reals( ts, p1, p2 )
 
 Gets the vector of the real parts of parameters with indices p1, p2 from Touchstone data.
 """
-reals( ts::TS, p1 = 1, p2 = 1 ) = map( real, param( ts, p1, p2 ) )
+reals( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( real, param( ts, p1, p2 ) )
 
 """
     imags( ts, p1, p2 )
 
 Gets the vector of the imaginary parts of parameters with indices p1, p2 from Touchstone data.
 """
-imags( ts::TS, p1 = 1, p2 = 1 ) = map( imag, param( ts, p1, p2 ) )
+imags( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( imag, param( ts, p1, p2 ) )
 
 
-function version( ts::TS )
+function version( ts::TouchstoneData )
   if haskey( ts.keywordparams, :Version )
     if ts.keywordparams[ :Version ] == 2
       return "2.0"
@@ -135,7 +160,7 @@ function version( ts::TS )
   end
 end
 
-function ports( ts::TS )
+function ports( ts::TouchstoneData )
   ports = 0
   if version( ts ) == "2.0"
     ports = ts.keywordparams[ :NumberOfPorts ]
@@ -145,7 +170,7 @@ function ports( ts::TS )
   return ports
 end
 
-function refs( ts::TS )
+function refs( ts::TouchstoneData )
   if version( ts ) == "2.0" && haskey( ts.keywordparams, :Reference )
     refs = ts.keywordparams[ :Reference ]
   else

@@ -171,9 +171,9 @@ end
 """
     write_touchstone_stream( stream, ts )
 
-Writes formated Touchstone data for a TS structure to a stream.
+Writes formated Touchstone data for a TouchstoneData structure to a stream.
 """
-function write_touchstone_stream( stream::IO, ts::TS )
+function write_touchstone_stream( stream::IO, ts::TouchstoneData )
   for comment in ts.comments
     write( stream, write_comment_line( comment ) )
     write( stream, "\n" )
@@ -195,9 +195,9 @@ end
 """
     write_touchstone_string( ts )
 
-Returns a string with formated Touchstone data for a TS structure.
+Returns a string with formated Touchstone data for a TouchstoneData structure.
 """
-function write_touchstone_string( ts::TS )
+function write_touchstone_string( ts::TouchstoneData )
   buffer = IOBuffer()
   write_touchstone_stream( buffer, ts )
   String( take!( copy( buffer ) ) )
@@ -206,9 +206,9 @@ end
 """
     write_touchstone_file( filename, ts )
 
-Writes formated Touchstone data for a TS structure to a file.
+Writes formated Touchstone data for a TouchstoneData structure to a file.
 """
-function write_touchstone_file( filename::String, ts::TS )
+function write_touchstone_file( filename::String, ts::TouchstoneData )
   open( filename, "w" ) do io
     write_touchstone_stream( io, ts )
   end
