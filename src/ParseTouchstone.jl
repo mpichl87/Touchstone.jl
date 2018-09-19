@@ -312,6 +312,11 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
         error( "V2.0: Option line before [Number of Ports] keyword expected." )
       end
       options = parse_option_line( line )
+      if version == 1 && ports != 2
+        if options.parameter in [ :HybridHParameters, :HybridGParameters ]
+          error( "$( parameterstrings[ options.parameter ] ) parameter format for $( ports )-port files not allowed." )
+        end
+      end
       option_line_found = true
     elseif !haskey( keywordparams, :Version ) || ( keywordparams[ :Version ] == 2 && networkdata )
       strings = split( line, "!" )

@@ -154,24 +154,24 @@
     """ ) == TS.TS( DataPoint[], TS.Options(), [ "Test" ] )
 
 @test   TS.parse_touchstone_string( """
-    !Test1
+  !Test1
 
-    # Hz G RI R 50
-    !Test2
-    """ ) == TS.TS( DataPoint[], TS.Options( 1.0, :HybridGParameters, :RealImaginary, 50.0 ), [ "Test1", "Test2" ]  )
+  # Hz G RI R 50
+  !Test2
+  """, 2 ) == TS.TS( DataPoint[], TS.Options( 1.0, :HybridGParameters, :RealImaginary, 50.0 ), [ "Test1", "Test2" ]  )
 
 
 # Example 9 (Version 1.0):
 ts = TS.parse_touchstone_string( """
-    !1-port Z-parameter file, multiple frequency points
-    # MHz Z MA R 75
-    !freq magZ11 angZ11
-    100     0.99    -4  !Comment
-    200     0.80    -22
-    300     0.707   -45
-    400     0.40    -62
-    500     0.01    -89
-    """ )
+  !1-port Z-parameter file, multiple frequency points
+  # MHz Z MA R 75
+  !freq magZ11 angZ11
+  100     0.99    -4  !Comment
+  200     0.80    -22
+  300     0.707   -45
+  400     0.40    -62
+  500     0.01    -89
+  """ )
 
 @test TS.freqs( ts ) ≈ collect( 1:5 ) * 100e6
 @test TS.mags( ts ) ≈ [ 0.99, 0.80, 0.707, 0.4, 0.01 ]
@@ -183,13 +183,13 @@ ts = TS.parse_touchstone_string( """
 
 # Example 13 (Version 1.0):
 ts = TS.parse_touchstone_string( """
-    !2-port S-parameter file, three frequency points
-    # GHz S RI R 50.0
-    !freq   ReS11   ImS11   ReS21   ImS21   ReS12   ImS12   ReS22   ImS22
-    1.0000  0.3926  -0.1211 -0.0003 -0.0021 -0.0003 -0.0021 0.3926 -0.1211
-    2.0000  0.3517  -0.3054 -0.0096 -0.0298 -0.0096 -0.0298 0.3517 -0.3054
-    10.000  0.3419   0.3336 -0.0134  0.0379 -0.0134  0.0379 0.3419 0.3336
-    """, 2 )
+  !2-port S-parameter file, three frequency points
+  # GHz S RI R 50.0
+  !freq   ReS11   ImS11   ReS21   ImS21   ReS12   ImS12   ReS22   ImS22
+  1.0000  0.3926  -0.1211 -0.0003 -0.0021 -0.0003 -0.0021 0.3926 -0.1211
+  2.0000  0.3517  -0.3054 -0.0096 -0.0298 -0.0096 -0.0298 0.3517 -0.3054
+  10.000  0.3419   0.3336 -0.0134  0.0379 -0.0134  0.0379 0.3419 0.3336
+  """, 2 )
 
 @test TS.freqs( ts ) ≈ [ 1e9, 2e9, 10e9 ]
 
@@ -210,10 +210,10 @@ ts = TS.parse_touchstone_string( """
 @test refs( ts ) == [ 50.0, 50.0 ]
 
 ts = TS.parse_touchstone_string( """
-    # GHz S RI R 50.0
-    1 1.11 1.11 1.21 1.21 1.12 1.12 1.22 1.22
-    2 2.11 2.11 2.21 2.21 2.12 2.12 2.22 2.22
-    """, 2 )
+  # GHz S RI R 50.0
+  1 1.11 1.11 1.21 1.21 1.12 1.12 1.22 1.22
+  2 2.11 2.11 2.21 2.21 2.12 2.12 2.22 2.22
+  """, 2 )
 @test TS.freqs( ts ) ≈ [ 1e9, 2e9 ]
 
 @test TS.reals( ts, 1, 1 ) ≈ [ 1.11, 2.11 ]
@@ -233,14 +233,14 @@ ts = TS.parse_touchstone_string( """
 @test refs( ts ) == [ 50.0, 50.0 ]
 
 ts = TS.parse_touchstone_string( """
-    # GHz S RI R 50.0
-    1   1.111 1.112 1.121 1.122 1.131 1.132
-        1.211 1.212 1.221 1.222 1.231 1.232
-        1.311 1.312 1.321 1.322 1.331 1.332
-    2   2.111 2.112 2.121 2.122 2.131 2.132
-        2.211 2.212 2.221 2.222 2.231 2.232
-        2.311 2.312 2.321 2.322 2.331 2.332
-    """, 3 )
+  # GHz S RI R 50.0
+  1   1.111 1.112 1.121 1.122 1.131 1.132
+      1.211 1.212 1.221 1.222 1.231 1.232
+      1.311 1.312 1.321 1.322 1.331 1.332
+  2   2.111 2.112 2.121 2.122 2.131 2.132
+      2.211 2.212 2.221 2.222 2.231 2.232
+      2.311 2.312 2.321 2.322 2.331 2.332
+  """, 3 )
 @test TS.freqs( ts ) ≈ [ 1e9, 2e9 ]
 
 @test TS.reals( ts, 1, 1 ) ≈ [ 1.111, 2.111 ]
@@ -275,16 +275,16 @@ ts = TS.parse_touchstone_string( """
 @test refs( ts ) == [ 50.0, 50.0, 50.0 ]
 
 ts = TS.parse_touchstone_string( """
-    # GHz S RI R 50.0
-    1   1.111 1.112 1.121 1.122 1.131 1.132 1.141 1.142
-        1.211 1.212 1.221 1.222 1.231 1.232 1.241 1.242
-        1.311 1.312 1.321 1.322 1.331 1.332 1.341 1.342
-        1.411 1.412 1.421 1.422 1.431 1.432 1.441 1.442
-    2   2.111 2.112 2.121 2.122 2.131 2.132 2.141 2.142
-        2.211 2.212 2.221 2.222 2.231 2.232 2.241 2.242
-        2.311 2.312 2.321 2.322 2.331 2.332 2.341 2.342
-        2.411 2.412 2.421 2.422 2.431 2.432 2.441 2.442
-    """, 4 )
+  # GHz S RI R 50.0
+  1   1.111 1.112 1.121 1.122 1.131 1.132 1.141 1.142
+      1.211 1.212 1.221 1.222 1.231 1.232 1.241 1.242
+      1.311 1.312 1.321 1.322 1.331 1.332 1.341 1.342
+      1.411 1.412 1.421 1.422 1.431 1.432 1.441 1.442
+  2   2.111 2.112 2.121 2.122 2.131 2.132 2.141 2.142
+      2.211 2.212 2.221 2.222 2.231 2.232 2.241 2.242
+      2.311 2.312 2.321 2.322 2.331 2.332 2.341 2.342
+      2.411 2.412 2.421 2.422 2.431 2.432 2.441 2.442
+  """, 4 )
 
 @test TS.freqs( ts ) ≈ [ 1e9, 2e9 ]
 
@@ -455,6 +455,21 @@ ts = TS.parse_touchstone_string( """
     1.15 1.15
     1.21 1.21 1.22 1.22 1.23 1.23 1.24 1.24 1.25 1.25
     """, 5 )
+
+@test_throws ErrorException(
+    "G parameter format for 1-port files not allowed."
+  ) TS.parse_touchstone_string( """
+    # GHz G RI R 50
+    1.0 2.0 3.0
+    """, 1
+  )
+@test_throws ErrorException(
+    "H parameter format for 1-port files not allowed."
+  ) TS.parse_touchstone_string( """
+    # GHz H RI R 50
+    1.0 2.0 3.0
+    """, 1
+  )
 
 # V2.0
 @test ! TS.is_keyword_line( "!" )
