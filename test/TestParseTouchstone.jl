@@ -69,7 +69,6 @@
 @test TS.parse_data( "100 0.99 -4", 1, Options( 1, :ScatteringParameters, :DecibelAngle, 1 ) ).parameter ==
   fill( 1.117997390454142 - 0.07817799327562218im, 1, 1 )
 
-
 @test TS.parse_data( "1 2 3 4 5 6 7 8 9", 2, Options( 1, :ScatteringParameters, :RealImaginary, 1 ) ).parameter ==
   [
     2.0+3im 6.0+7im;
@@ -105,7 +104,6 @@
     7.901506724761102 + 1.251475720321847im 9.81627183447664 + 1.908089953765448im 11.692440777422823 + 2.69941265212638im;
     13.522961568046956 + 3.6234666314352904im 15.300876095408567 + 4.677947275563788im 17.019334360787703 + 5.860226780228821im
   ]
-
 
 @test TS.parse_data(
   "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19", 3,
@@ -146,6 +144,30 @@
     17.77791740104458 + 9.058301354842067im 21.969453750943302 + 12.17786706962086im 27.106010060371215 + 16.286933984241927im 33.388076683124744 + 21.68247052028196im
   ]
 
+@test_throws ErrorException(
+    "Wrong number of noise data values!"
+  ) TS.parseNoiseData( [ 1.0 2.0 3.0 4.0 ] )
+
+@test TS.parseNoiseData(
+    [ 1.0 2.0 3.0 4.0 5.0 ]
+  ) == NoiseDataPoint(
+    1.0e9, 1.2589254117941673, 2.9926921507794724 + 0.2092694212323759im, 250.0
+  )
+
+@test TS.parseNoiseData(
+    [ 1.0 2.0 3.0 4.0 5.0 ],
+    Options( 1, :ScatteringParameters, :RealImaginary, 1 )
+  ) == NoiseDataPoint(
+    1.0, 1.2589254117941673, 2.9926921507794724 + 0.2092694212323759im, 5.0
+  )
+
+@test TS.parseNoiseData(
+    [ 1.0 2.0 3.0 4.0 5.0 ],
+    Options(),
+    2
+  ) == NoiseDataPoint(
+    1.0e9, 1.2589254117941673, 2.9926921507794724 + 0.2092694212323759im, 5.0
+  )
 
 @test   parse_touchstone_string( "" ) == TouchstoneData( DataPoint[] )
 
@@ -159,7 +181,6 @@
   # Hz G RI R 50
   !Test2
   """, 2 ) == TouchstoneData( DataPoint[], NoiseDataPoint[], Options( 1.0, :HybridGParameters, :RealImaginary, 50.0 ), [ "Test1", "Test2" ]  )
-
 
 # Example 9 (Version 1.0):
 ts = parse_touchstone_string( """
@@ -472,6 +493,24 @@ ts = parse_touchstone_string( """
     1.0 2.0 3.0
     """, 1
   )
+
+# Example 918 (Version 1.0):
+ts = parse_touchstone_string( """
+  !2-port network, S-parameter and noise data
+  !Default MA format, GHz frequencies, 50 ohm reference, S-parameters
+  #
+  ! NETWORK PARAMETERS
+  2 .95 -26 3.57 157 .04 76 .66 -14
+  22 .60 -144 1.30 40 .14 40 .56 -85
+  ! NOISE PARAMETERS
+  4  .7 .64 69 .38
+  18 2.7 .46 -33 .40
+  """, 2 )
+
+@test noiseFreqs( ts ) == [ 4.0e9, 1.8e10 ]
+@test minNoiseFigures( ts ) == [ 1.0839269140212036, 1.3645831365889245 ]
+@test reflCoeffs( ts ) == [ 0.22935548770899225 + 0.5974914729582091im; 0.3857884612548951 - 0.2505339561069125im ]
+@test effNoiseRess( ts ) == [ 19.0, 20.0 ]
 
 # V2.0
 @test ! TS.is_keyword_line( "!" )

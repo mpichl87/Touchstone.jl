@@ -156,12 +156,15 @@ Converts a pair of values in magnitude / angle format to a complex number.
 """
 ma2comp( m, a ) =  m * cis( deg2rad( a ) )
 
+
+dB2Mag( dB ) = 10 ^ ( dB / 20 )
+
 """
     da2comp( m, a )
 
 Converts a pair of values in dB / angle format to a complex number.
 """
-da2comp( d, a ) = ma2comp( 10 ^ ( d / 20 ), a )
+da2comp( d, a ) = ma2comp( dB2Mag( d ), a )
 
 "Holds conversion functions for parameter format symbols when parsing."
 const ParseConversions = Dict{ Symbol, Function }(
@@ -203,6 +206,39 @@ function parse_data( vals::Array{Float64}, N, options = Options(), twoPortDataFl
   return DataPoint( freq, res )
 end
 
+function parseNoiseData( vals::Array{Float64}, options = Options(), version = 1 )
+  if length( vals ) != 5
+    error( "Wrong number of noise data values!" )
+  end
+  frequency = vals[ 1 ]  * options.unit
+  minNoiseFigure = dB2Mag( vals[ 2 ] )
+  reflCoeff = ma2comp( vals[ 3 ], vals[ 4 ] )
+  effNoiseRes = vals[ 5 ]
+  if version == 1
+    effNoiseRes *= options.resistance
+  end
+  return NoiseDataPoint( frequency, minNoiseFigure, reflCoeff, effNoiseRes )
+end
+
+function stripCommentFromLine( line )
+  comment = ""
+  strings = split( line, "!" )
+  if length( strings ) > 1
+    comment = join( strings[ 2:end ], "!" )
+    line = strings[ 1 ]
+  end
+  return( line, comment)
+end
+
+function getValsAndPushComments!( comments, line )
+  line, comment = stripCommentFromLine( line )
+  if comment != ""
+    push!( comments, comment )
+  end
+  vals = map( s -> parse( Float64, s ), split( line ) )
+  return vals
+end
+
 """
     parse_touchstone_stream( stream, [ ports ] )
 
@@ -223,6 +259,7 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
   twoPortDataFlipped = true
   referenceNextLine = false
   endfound = false
+  lastParamFrequency = -1
   for line in eachline( stream )
     if referenceNextLine
       keywordparams[ :Reference ] = parse_reference( split( line ) )
@@ -319,15 +356,21 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
         end
       end
       option_line_found = true
+    elseif noiseDataExpected
+      vals = getValsAndPushComments!( comments, line )
+      push!( noiseData, parseNoiseData( vals, options, version ) )
     elseif !haskey( keywordparams, :Version ) || ( keywordparams[ :Version ] == 2 && networkdata )
-      strings = split( line, "!" )
-      if length( strings ) > 1
-        comment = join( strings[ 2:end ], "!" )
-        push!( comments, comment )
-        line = strings[ 1 ]
-      end
-      newVals = map( s -> parse( Float64, s ), split( line ) )
+      newVals = getValsAndPushComments!( comments, line )
       if version == 1
+        # V1.0 Noise Data starts, when frequency decreases.
+        if length( vals ) == 0
+          if newVals[ 1 ] <= lastParamFrequency
+            push!( noiseData, parseNoiseData( newVals, options, 1 ) )
+            vals = Vector{Float64}()
+            noiseDataExpected = true
+          end
+          lastParamFrequency = newVals[ 1 ]
+        end
         # V1.0: not more then 4 value pairs per line. (#7)
         # The first  line contains the frequency.
         maxVals = length( vals ) == 0 ? 9 : 8
