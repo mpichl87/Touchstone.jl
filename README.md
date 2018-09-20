@@ -10,6 +10,13 @@
 
 ## Changelog
 
+### v1.0.2
+
+- Only 2 port G- or H-parameters in V1.0 files allowed.
+- Check limit of four complex parameters per line for V1.0 data.
+- Checks for ascending frequencies.
+- Parses Noise Data for V1.0 files.
+
 ### v1.0.1
 
 Version 2.0 parser works in most cases.
