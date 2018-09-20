@@ -81,9 +81,9 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "public.html#Touchstone.TS",
+    "location": "public.html#Touchstone.TouchstoneData",
     "page": "Public",
-    "title": "Touchstone.TS",
+    "title": "Touchstone.TouchstoneData",
     "category": "type",
     "text": "Holds data for Touchstone file.\n\n\n\n\n\n"
 },
@@ -105,7 +105,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "public.html#Touchstone.freqs-Tuple{TS}",
+    "location": "public.html#Touchstone.freqs-Tuple{TouchstoneData}",
     "page": "Public",
     "title": "Touchstone.freqs",
     "category": "method",
@@ -137,7 +137,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "public.html#Touchstone.params-Tuple{TS}",
+    "location": "public.html#Touchstone.params-Tuple{TouchstoneData}",
     "page": "Public",
     "title": "Touchstone.params",
     "category": "method",
@@ -149,7 +149,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Touchstone.parse_touchstone_file",
     "category": "function",
-    "text": "parse_touchstone_file( filename, [ ports ] )\n\nReturns a TS structure for a valid Touchstone data file.\n\nWhen called without ports, tries to interpret the file extension, such as \".s2p\", or \".S4P\".\n\n\n\n\n\n"
+    "text": "parse_touchstone_file( filename, [ ports ] )\n\nReturns a TouchstoneData structure for a valid Touchstone data file.\n\nWhen called without ports, tries to interpret the file extension, such as \".s2p\", or \".S4P\".\n\n\n\n\n\n"
 },
 
 {
@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Touchstone.parse_touchstone_stream",
     "category": "function",
-    "text": "parse_touchstone_stream( stream, [ ports ] )\n\nReturns a TS structure for a valid Touchstone data stream.\n\n\n\n\n\n"
+    "text": "parse_touchstone_stream( stream, [ ports ] )\n\nReturns a TouchstoneData structure for a valid Touchstone data stream.\n\n\n\n\n\n"
 },
 
 {
@@ -165,7 +165,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Touchstone.parse_touchstone_string",
     "category": "function",
-    "text": "parse_touchstone_string( in, [ ports ] )\n\nReturns a TS structure for a valid Touchstone data string.\n\n\n\n\n\n"
+    "text": "parse_touchstone_string( in, [ ports ] )\n\nReturns a TouchstoneData structure for a valid Touchstone data string.\n\n\n\n\n\n"
 },
 
 {
@@ -177,27 +177,27 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "public.html#Touchstone.write_touchstone_file-Tuple{String,TS}",
+    "location": "public.html#Touchstone.write_touchstone_file-Tuple{String,TouchstoneData}",
     "page": "Public",
     "title": "Touchstone.write_touchstone_file",
     "category": "method",
-    "text": "write_touchstone_file( filename, ts )\n\nWrites formated Touchstone data for a TS structure to a file.\n\n\n\n\n\n"
+    "text": "write_touchstone_file( filename, ts )\n\nWrites formated Touchstone data for a TouchstoneData structure to a file.\n\n\n\n\n\n"
 },
 
 {
-    "location": "public.html#Touchstone.write_touchstone_stream-Tuple{IO,TS}",
+    "location": "public.html#Touchstone.write_touchstone_stream-Tuple{IO,TouchstoneData}",
     "page": "Public",
     "title": "Touchstone.write_touchstone_stream",
     "category": "method",
-    "text": "write_touchstone_stream( stream, ts )\n\nWrites formated Touchstone data for a TS structure to a stream.\n\n\n\n\n\n"
+    "text": "write_touchstone_stream( stream, ts )\n\nWrites formated Touchstone data for a TouchstoneData structure to a stream.\n\n\n\n\n\n"
 },
 
 {
-    "location": "public.html#Touchstone.write_touchstone_string-Tuple{TS}",
+    "location": "public.html#Touchstone.write_touchstone_string-Tuple{TouchstoneData}",
     "page": "Public",
     "title": "Touchstone.write_touchstone_string",
     "category": "method",
-    "text": "write_touchstone_string( ts )\n\nReturns a string with formated Touchstone data for a TS structure.\n\n\n\n\n\n"
+    "text": "write_touchstone_string( ts )\n\nReturns a string with formated Touchstone data for a TouchstoneData structure.\n\n\n\n\n\n"
 },
 
 {
@@ -393,7 +393,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "internals.html#Base.:==-Tuple{Any,TS}",
+    "location": "internals.html#Base.:==-Tuple{Any,TouchstoneData}",
     "page": "Internals",
     "title": "Base.:==",
     "category": "method",
