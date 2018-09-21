@@ -168,6 +168,15 @@ function write_data( data::DataPoint, N::Integer, options::Options = Options() )
   end
 end
 
+function writeNoiseData( nd::NoiseDataPoint, options::Options = Options(), version = 1 )
+  freqstring = string( nd.frequency / options.unit )
+  noisefigstring = 20log10( nd.minNoiseFigure )
+  reflcoeffstring = mastring( nd.reflCoeff )
+  effnoiseresstring = version == 1 ? string( nd.effNoiseRes / options.resistance ) : string( nd.effNoiseRes )
+  res = "$freqstring $noisefigstring $reflcoeffstring $effnoiseresstring\n"
+  return res
+end
+
 """
     write_touchstone_stream( stream, ts )
 
@@ -181,14 +190,17 @@ function write_touchstone_stream( stream::IO, ts::TouchstoneData )
 
   write( stream, write_option_line( ts.options ) )
   write( stream, "\n" )
-
-  ports = -1
-  if size( ts.data, 1 ) > 0
-    ports = size( ts.data[ 1 ].parameter, 1 )
-  end
-
+  #
+  # ports = -1
+  # if size( ts.data, 1 ) > 0
+  #   ports = size( ts.data[ 1 ].parameter, 1 )
+  # end
+  #
   for datapoint in ts.data
-    write( stream, write_data( datapoint, ports, ts.options ) )
+    write( stream, write_data( datapoint, ports( ts ), ts.options ) )
+  end
+  for ndp in ts.noiseData
+    write( stream, writeNoiseData( ndp, ts.options ) )
   end
 end
 

@@ -121,6 +121,48 @@ struct TouchstoneData
     if length( data ) > 0 && length( noiseData ) > 0 && data[ end ].frequency < noiseData[ 1 ].frequency
       error( "Last frequency of data vector is smaller than first frequency of noise data vector." )
     end
+    v = version( keywordparams )
+    if v == "1.0"
+      p = ports( data )
+    elseif v == "2.0"
+      p = ports( keywordparams )
+      if haskey( keywordparams, :NumberOfFrequencies )
+        n = keywordparams[ :NumberOfFrequencies ]
+        if length( data ) != n
+          error( "V2.0: $( n ) data rows expected, $( length( data ) ) found." )
+        end
+      else
+        error( "V2.0: [Number of Frequencies] keyword expected." )
+      end
+      if haskey( keywordparams, :Reference ) && length( keywordparams[ :Reference ] ) != p
+        error( "V2.0: $( p ) parameters for [Reference] expected." )
+      end
+      if haskey( keywordparams, :MixedModeOrder ) && options.parameter in [ :HybridHParameters, :HybridGParameters ]
+        error( "[Mixed-Mode Order] keyword for $( parameterstrings[ options.parameter ] ) parameter format not allowed." )
+      end
+      if p == 2
+        if haskey( keywordparams, :TwoPortDataOrder )
+          dataOrder = keywordparams[ :TwoPortDataOrder ]
+          if dataOrder != "12_21"  && dataOrder != "21_12"
+            error( "V2.0: Unknown parameter '$dataOrder' for [Two-Port Data Order] keyword." )
+          end
+        else
+          error( "V2.0: [Two-Port Data Order] expected for two port data." )
+        end
+      else
+        if haskey( keywordparams, :NoiseData )
+          error( "V2.0: [NoiseData] keyword not allowed for $( p ) port data." )
+        end
+        if haskey( keywordparams, :TwoPortDataOrder )
+          error( "V2.0: [Two-Port Data Order] keyword not allowed for $( p ) port data." )
+        end
+      end
+    end
+    if p != 2
+      if options.parameter in [ :HybridHParameters, :HybridGParameters ]
+        error( "$( parameterstrings[ options.parameter ] ) parameter format for $( p )-port files not allowed." )
+      end
+    end
     new( data, noiseData, options, comments, keywordparams )
   end
 end
@@ -213,10 +255,9 @@ Gets the vector of the imaginary parts of parameters with indices p1, p2 from To
 """
 imags( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( imag, param( ts, p1, p2 ) )
 
-
-function version( ts::TouchstoneData )
-  if haskey( ts.keywordparams, :Version )
-    if ts.keywordparams[ :Version ] == 2
+function version( keywordparams::Dict{ Symbol, Any } )
+  if haskey( keywordparams, :Version )
+    if keywordparams[ :Version ] == 2
       return "2.0"
     else
       error( "Unknown version." )
@@ -226,15 +267,14 @@ function version( ts::TouchstoneData )
   end
 end
 
-function ports( ts::TouchstoneData )
-  ports = 0
-  if version( ts ) == "2.0"
-    ports = ts.keywordparams[ :NumberOfPorts ]
-  elseif length( ts.data ) > 0
-    ports = size( ts.data[ 1 ].parameter, 1 )
-  end
-  return ports
-end
+version( ts::TouchstoneData ) = version( ts.keywordparams )
+
+#V2.0
+ports( keywordparams::Dict{ Symbol, Any } ) = keywordparams[ :NumberOfPorts ]
+#V1.0
+ports( data::Vector{ DataPoint } ) = length( data ) > 0 ? size( data[ 1 ].parameter, 1 ) : 0
+#V1.0, V2.0
+ports( ts::TouchstoneData ) = version( ts ) == "2.0" ? ports( ts.keywordparams ) : ports( ts.data )
 
 function refs( ts::TouchstoneData )
   if version( ts ) == "2.0" && haskey( ts.keywordparams, :Reference )

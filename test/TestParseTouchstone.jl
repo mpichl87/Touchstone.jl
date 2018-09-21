@@ -175,13 +175,6 @@
     !Test
     """ ) == TouchstoneData( DataPoint[], NoiseDataPoint[], Options(), [ "Test" ] )
 
-@test   parse_touchstone_string( """
-  !Test1
-
-  # Hz G RI R 50
-  !Test2
-  """, 2 ) == TouchstoneData( DataPoint[], NoiseDataPoint[], Options( 1.0, :HybridGParameters, :RealImaginary, 50.0 ), [ "Test1", "Test2" ]  )
-
 # Example 9 (Version 1.0):
 ts = parse_touchstone_string( """
   !1-port Z-parameter file, multiple frequency points

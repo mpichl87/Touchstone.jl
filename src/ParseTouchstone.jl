@@ -263,9 +263,6 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
   for line in eachline( stream )
     if referenceNextLine
       keywordparams[ :Reference ] = parse_reference( split( line ) )
-      if length( keywordparams[ :Reference ] ) != ports
-        error( "V2.0: $ports parameters for [Reference] expected.")
-      end
       referenceNextLine = false
     elseif is_empy_line( line )
       ;# nothing
@@ -294,8 +291,6 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
       if keyword == :Reference
         if length( keywordparams[ :Reference ] ) == 0
           referenceNextLine = true
-        elseif length( keywordparams[ :Reference ] ) != ports
-          error( "V2.0: $ports parameters for [Reference] expected.")
         end
       elseif keyword == :NetworkData
         networkdata = true
@@ -305,37 +300,17 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
         if !haskey( keywordparams, :NumberOfFrequencies )
           error( "V2.0: [Number of Frequencies] keyword before [Network Data] keyword expected." )
         end
-        if ports == 2 && !haskey( keywordparams, :TwoPortDataOrder )
-          error( "V2.0: [Two-Port Data Order] expected for two port data." )
-        end
       elseif keyword == :NumberOfPorts
         ports = keywordparams[ :NumberOfPorts ]
         neededValues = 1 + 2ports * ports
-        if ports != 2
-          if options.parameter in [ :HybridHParameters, :HybridGParameters ]
-            error( "$( parameterstrings[ options.parameter ] ) parameter format for $( ports )-port files not allowed." )
-          end
-        end
       elseif keyword == :TwoPortDataOrder
-        if ports != 2
-          error( "V2.0: [Two-Port Data Order] keyword not allowed for $(ports) port data." )
-        end
         dataOrder = keywordparams[ :TwoPortDataOrder ]
         if dataOrder == "12_21"
           twoPortDataFlipped = true
         elseif dataOrder == "21_12"
           twoPortDataFlipped = false
-        else
-          error( "V2.0: Unknown parameter '$dataOrder' for [Two-Port Data Order] keyword." )
-        end
-      elseif keyword == :MixedModeOrder
-        if options.parameter in [ :HybridHParameters, :HybridGParameters ]
-          error( "[Mixed-Mode Order] keyword for $( parameterstrings[ options.parameter ] ) parameter format not allowed." )
         end
       elseif keyword == :NoiseData
-        if ports != 2
-          error( "V2.0: [NoiseData] keyword not allowed for $(ports) port data." )
-        end
         noiseDataExpected   = true
         networkdata = false
       elseif keyword == :End
@@ -350,11 +325,6 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
         error( "V2.0: Option line before [Number of Ports] keyword expected." )
       end
       options = parse_option_line( line )
-      if version == 1 && ports != 2
-        if options.parameter in [ :HybridHParameters, :HybridGParameters ]
-          error( "$( parameterstrings[ options.parameter ] ) parameter format for $( ports )-port files not allowed." )
-        end
-      end
       option_line_found = true
     elseif noiseDataExpected
       vals = getValsAndPushComments!( comments, line )
@@ -385,12 +355,6 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
       end
     elseif endfound
       error( "V2.0: Non empty or comment line found after [End] keyword." )
-    end
-  end
-  if haskey( keywordparams, :Version ) && keywordparams[ :Version ] == 2
-    frequs = keywordparams[ :NumberOfFrequencies ]
-    if length( data ) != frequs
-      error( "V2.0: $( frequs ) data rows expected, $( length( data ) ) found." )
     end
   end
   ret = TouchstoneData( data, noiseData, options, comments, keywordparams )
@@ -491,7 +455,6 @@ function parse_N_params( params, N::Integer, tp::DataType = String )
     return params
   end
 end
-
 
 function parse_N_params( params, tp::DataType )
   N = length( params )
