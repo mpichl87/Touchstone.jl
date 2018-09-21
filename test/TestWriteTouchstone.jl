@@ -84,13 +84,6 @@
   # GHz S MA R 50.0
   """
 
-@test write_touchstone_string( TouchstoneData(
-  DataPoint[], NoiseDataPoint[], Options( 1.0, :HybridGParameters, :RealImaginary, 50.0 ), [ "Test1", "Test2" ] ) ) == """
-  !Test1
-  !Test2
-  # Hz G RI R 50.0
-  """
-
 @test write_touchstone_string(
   TouchstoneData(
     [
