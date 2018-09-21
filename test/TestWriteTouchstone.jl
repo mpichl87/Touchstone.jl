@@ -11,31 +11,31 @@
 @test TS.write_data(
   DataPoint( 1.0, fill( 2.0 + 3im, 1, 1 ) ), 1,
   Options( 1.0, :ScatteringParameters, :RealImaginary, 1.0 )
-) == "1.0 2.0 3.0\n"
+  ) == "1.0 2.0 3.0\n"
 
 @test TS.write_data(
   DataPoint( 1e9, fill( cis( π / 2 ), 1, 1 ) ), 1,
   Options( 1e9, :ScatteringParameters, :MagnitudeAngle, 1.0 )
-) == "1.0 1.0 90.0\n"
+  ) == "1.0 1.0 90.0\n"
 
 @test TS.write_data(
   DataPoint( 1e9, fill( 10cis( π / 2 ), 1, 1 ) ), 1,
   Options( 1e9, :ScatteringParameters, :DecibelAngle, 1.0 )
-) == """
+  ) == """
   1.0 20.0 90.0
   """
 
 @test TS.write_data(
   DataPoint( 1.0, [ 2.0 3.0; 4.0 5.0 ] ), 2,
   Options( 1.0, :ScatteringParameters, :RealImaginary, 1.0 )
-) == """
+  ) == """
   1.0 2.0 0.0 4.0 0.0 3.0 0.0 5.0 0.0
   """
 
 @test TS.write_data(
   DataPoint( 1.0, [ 2.0 3.0 4.0; 5.0 6.0 7.0; 8.0 9.0 10.0 ] ), 3,
   Options( 1.0, :ScatteringParameters, :RealImaginary, 1.0 )
-) == """
+  ) == """
   1.0 2.0 0.0 3.0 0.0 4.0 0.0
   5.0 0.0 6.0 0.0 7.0 0.0
   8.0 0.0 9.0 0.0 10.0 0.0
@@ -44,11 +44,51 @@
 @test TS.write_data(
   DataPoint( 1.0, [ 2.0 3.0 4.0 5.0; 6.0 7.0 8.0 9.0; 10.0 11.0 12.0 13.0; 14.0 15.0 16.0 17.0 ] ), 4,
   Options( 1.0, :ScatteringParameters, :RealImaginary, 1.0 )
-) == """
+  ) == """
   1.0 2.0 0.0 3.0 0.0 4.0 0.0 5.0 0.0
   6.0 0.0 7.0 0.0 8.0 0.0 9.0 0.0
   10.0 0.0 11.0 0.0 12.0 0.0 13.0 0.0
   14.0 0.0 15.0 0.0 16.0 0.0 17.0 0.0
+  """
+
+@test TS.writeNoiseData( NoiseDataPoint( 1e9, 10, im, 50 ) ) == "1.0 20.0 1.0 90.0 1.0\n"
+
+@test TS.writeNoiseData(
+  NoiseDataPoint( 1, 10, im, 1 ),
+  Options( 1.0, :ScatteringParameters, :RealImaginary, 1.0 )
+  ) == "1.0 20.0 1.0 90.0 1.0\n"
+
+@test write_touchstone_string(
+  TouchstoneData(
+    [ DataPoint( 100e6, fill( 0.99cis(   -4π / 180 ), 1, 1 ) ) ],
+    [
+      NoiseDataPoint( 100e6, 10, im, 50 ),
+      NoiseDataPoint( 200e6, 10, im, 50 ),
+    ],
+    Options( 1e6, :ScatteringParameters, :MagnitudeAngle, 50.0 ),
+    [],
+  )
+  ) == """
+  # MHz S MA R 50.0
+  100.0 0.9899999999999999 -4.0
+  100.0 20.0 1.0 90.0 1.0
+  200.0 20.0 1.0 90.0 1.0
+  """
+
+@test write_touchstone_string( TouchstoneData( DataPoint[] ) ) == """
+  # GHz S MA R 50.0
+  """
+
+@test write_touchstone_string( TouchstoneData( DataPoint[], NoiseDataPoint[], Options(), [ "Test" ] ) ) == """
+  !Test
+  # GHz S MA R 50.0
+  """
+
+@test write_touchstone_string( TouchstoneData(
+  DataPoint[], NoiseDataPoint[], Options( 1.0, :HybridGParameters, :RealImaginary, 50.0 ), [ "Test1", "Test2" ] ) ) == """
+  !Test1
+  !Test2
+  # Hz G RI R 50.0
   """
 
 @test write_touchstone_string(
@@ -64,7 +104,7 @@
     Options( 1e6, :ScatteringParameters, :MagnitudeAngle, 75.0 ),
     [ "Test1", "freq magZ11 angZ11" ]
   )
-) == """
+  ) == """
   !Test1
   !freq magZ11 angZ11
   # MHz S MA R 75.0
@@ -120,7 +160,8 @@
     ],
     NoiseDataPoint[],
     Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 )
-  ) ) == """
+  )
+  ) == """
   # GHz S RI R 50.0
   1.0 1.11 1.11 1.21 1.21 1.12 1.12 1.22 1.22
   2.0 2.11 2.11 2.21 2.21 2.12 2.12 2.22 2.22
@@ -142,7 +183,8 @@
     ],
     NoiseDataPoint[],
     Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 )
-  ) ) == """
+  )
+  ) == """
   # GHz S RI R 50.0
   1.0 1.11 1.11 1.12 1.12 1.13 1.13
   1.21 1.21 1.22 1.22 1.23 1.23
@@ -170,7 +212,8 @@
     ],
     NoiseDataPoint[],
     Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 )
-  ) ) == """
+  )
+  ) == """
   # GHz S RI R 50.0
   1.0 1.11 1.11 1.12 1.12 1.13 1.13 1.14 1.14
   1.21 1.21 1.22 1.22 1.23 1.23 1.24 1.24
@@ -202,7 +245,8 @@
     ],
     NoiseDataPoint[],
     Options( 1e9, :ScatteringParameters, :RealImaginary, 50.0 )
-  ) ) == """
+  )
+  ) == """
   # GHz S RI R 50.0
   1.0 1.11 1.11 1.12 1.12 1.13 1.13 1.14 1.14
   1.15 1.15
