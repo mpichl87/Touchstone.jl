@@ -10,6 +10,11 @@
 
 ## Changelog
 
+### v1.0.3
+
+- Move exception to inner constructors.
+
+
 ### v1.0.2
 
 - Only 2 port G- or H-parameters in V1.0 files allowed.
