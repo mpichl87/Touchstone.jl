@@ -144,6 +144,30 @@
     17.77791740104458 + 9.058301354842067im 21.969453750943302 + 12.17786706962086im 27.106010060371215 + 16.286933984241927im 33.388076683124744 + 21.68247052028196im
   ]
 
+@test TS.parse_data( "1 2 3 4 5 6 7 8 9", 2, Options( 1, :ImpedanceParameters, :RealImaginary, 2 ) ).parameter ==
+  [
+    4.0+6.0im   12.0+14.0im;
+    8.0+10.0im  16.0+18.0im;
+  ]
+
+@test TS.parse_data( "1 2 3 4 5 6 7 8 9", 2, Options( 1, :AdmittanceParameters, :RealImaginary, 0.5 ) ).parameter ==
+  [
+    4.0+6.0im   12.0+14.0im;
+    8.0+10.0im  16.0+18.0im;
+  ]
+
+@test TS.parse_data( "1 2 0 4 5 6 7 0.5 0", 2, Options( 1, :HybridGParameters, :RealImaginary, 2 ) ).parameter ==
+  [
+    1          6.0+7.0im;
+    4.0+5.0im  1;
+  ]
+
+@test TS.parse_data( "1 0.5 0 4 5 6 7 2 0", 2, Options( 1, :HybridHParameters, :RealImaginary, 2 ) ).parameter ==
+  [
+    1          6.0+7.0im;
+    4.0+5.0im  1;
+  ]
+
 @test_throws ErrorException(
     "Wrong number of noise data values!"
   ) TS.parseNoiseData( [ 1.0 2.0 3.0 4.0 ] )
@@ -188,7 +212,7 @@ ts = parse_touchstone_string( """
   """ )
 
 @test freqs( ts ) ≈ collect( 1:5 ) * 100e6
-@test mags( ts ) ≈ [ 0.99, 0.80, 0.707, 0.4, 0.01 ]
+@test mags( ts ) ≈ [ 74.25, 60.0, 53.025, 30.0, 0.75 ]
 @test angs( ts ) ≈ [ -4, -22, -45, -62, -89 ]
 @test ts.comments == [ "1-port Z-parameter file, multiple frequency points", "freq magZ11 angZ11", "Comment" ]
 @test version( ts ) == "1.0"
@@ -635,7 +659,7 @@ ts = parse_touchstone_string( """
     [End]
     """ )
 @test freqs( ts ) ≈ collect( 1:5 ) * 100e6
-@test mags( ts ) ≈ [ 0.99, 0.80, 0.707, 0.4, 0.01 ]
+@test mags( ts ) ≈ [ 0.99, 0.8, 0.707, 0.4, 0.01 ]
 @test angs( ts ) ≈ [ -4, -22, -45, -62, -89 ]
 @test ts.comments == [ "1-port Z-parameter file, multiple frequency points", "freq magZ11 angZ11", "Comment" ]
 @test ts.keywordparams == Dict{ Symbol, Any }(

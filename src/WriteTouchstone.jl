@@ -146,6 +146,22 @@ function write_data( data::DataPoint, N::Integer, options::Options = Options() )
     paras = data.parameter
     lines = N
   end
+  if options.parameter == :ImpedanceParameters
+    paras = map( x -> x / options.resistance, paras )
+  end
+  if options.parameter == :AdmittanceParameters
+    paras = map( x -> x * options.resistance, paras )
+  end
+  if N == 2
+    if options.parameter == :HybridGParameters
+      paras[ 1 ] *= options.resistance
+      paras[ 4 ] /= options.resistance
+    end
+    if options.parameter == :HybridHParameters
+      paras[ 1 ] /= options.resistance
+      paras[ 4 ] *= options.resistance
+    end
+  end
   strings = map( snn -> WriteConversions[ options.format ]( snn ), paras )
   datastrings = ones( String, lines )
   for row in 1:lines
