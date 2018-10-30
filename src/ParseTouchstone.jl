@@ -180,9 +180,9 @@ Returns a data point structure for a valid line of a one-port Touchstone file.
 
 For 3 or more ports, the line should be the concatenation of 3 or more lines from the Touchstone file.
 """
-function parse_data( line::String, N, options = Options() )
+function parse_data( line::String, N, options = Options(), version = 1 )
   vals = map( s -> parse( Float64, s ), split( line ) )
-  parse_data( vals, N, options )
+  parse_data( vals, N, options, version )
 end
 
 """
@@ -192,13 +192,32 @@ Returns a data point structure for a vector of numbers from a one-port Touchston
 
 For 3 or more ports, the array should contain exactly 2N² + 1 values.
 """
-function parse_data( vals::Array{Float64}, N, options = Options(), twoPortDataFlipped = true )
+function parse_data( vals::Array{Float64}, N, options = Options(), version = 1, twoPortDataFlipped = true )
   if length( vals ) != 2N * N + 1
     error( "Wrong number of values!" )
   end
   freq = vals[ 1 ]  * options.unit
   pairs = zip( vals[ 2:2:end - 1 ], vals[ 3:2:end ] )
   converted = map( pair -> ParseConversions[ options.format ]( pair... ), pairs )
+  # renormalize Z, Y, G and H parameters for version 1.0
+  if version == 1
+    if options.parameter == :ImpedanceParameters
+      converted = map( x -> x * options.resistance, converted )
+    end
+    if options.parameter == :AdmittanceParameters
+      converted = map( x -> x / options.resistance, converted )
+    end
+    if N == 2
+      if options.parameter == :HybridGParameters
+        converted[ 1 ] /= options.resistance
+        converted[ 4 ] *= options.resistance
+      end
+      if options.parameter == :HybridHParameters
+        converted[ 1 ] *= options.resistance
+        converted[ 4 ] /= options.resistance
+      end
+    end
+  end
   res = reshape( converted, N, N )
   if N > 2 || ( N == 2 && !twoPortDataFlipped )
     res = permutedims( res, [ 2, 1 ] )
@@ -350,7 +369,7 @@ function parse_touchstone_stream( stream::IO, ports::Integer = 1 )
       end
       vals = [ vals; newVals ]
       if length( vals ) >= neededValues
-        push!( data, parse_data( vals, ports, options, twoPortDataFlipped ) )
+        push!( data, parse_data( vals, ports, options, version, twoPortDataFlipped  ) )
         vals = Vector{Float64}()
       end
     elseif endfound

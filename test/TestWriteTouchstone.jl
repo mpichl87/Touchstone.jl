@@ -51,6 +51,51 @@
   14.0 0.0 15.0 0.0 16.0 0.0 17.0 0.0
   """
 
+
+@test TS.write_data(
+  DataPoint( 1.0, [
+    4.0+6.0im   12.0+14.0im;
+    8.0+10.0im  16.0+18.0im;
+  ] ),
+  2,
+  Options( 1.0, :ImpedanceParameters, :RealImaginary, 2.0 )
+  ) == """
+  1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0
+  """
+
+@test TS.write_data(
+  DataPoint( 1.0, [
+    4.0+6.0im   12.0+14.0im;
+    8.0+10.0im  16.0+18.0im;
+  ] ),
+  2,
+  Options( 1.0, :AdmittanceParameters, :RealImaginary, 0.5 )
+  ) == """
+  1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0
+  """
+
+@test TS.write_data(
+  DataPoint( 1.0, [
+    1          6.0+7.0im;
+    4.0+5.0im  1;
+  ] ),
+  2,
+  Options( 1.0, :HybridGParameters, :RealImaginary, 2 )
+  ) == """
+  1.0 2.0 0.0 4.0 5.0 6.0 7.0 0.5 0.0
+  """
+
+@test TS.write_data(
+  DataPoint( 1.0, [
+    1          6.0+7.0im;
+    4.0+5.0im  1;
+  ] ),
+  2,
+  Options( 1.0, :HybridHParameters, :RealImaginary, 2 )
+  ) == """
+  1.0 0.5 0.0 4.0 5.0 6.0 7.0 2.0 0.0
+  """
+
 @test TS.writeNoiseData( NoiseDataPoint( 1e9, 10, im, 50 ) ) == "1.0 20.0 1.0 90.0 1.0\n"
 
 @test TS.writeNoiseData(

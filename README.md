@@ -10,6 +10,11 @@
 
 ## Changelog
 
+### v1.1.0
+
+- Milestone v1.0 reached.
+- Z, Y, G, and H parameter renormalized.
+
 ### v1.0.3
 
 - Move exception to inner constructors.
