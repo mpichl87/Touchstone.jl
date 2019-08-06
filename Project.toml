@@ -1,7 +1,7 @@
 name = "Touchstone"
 uuid = "58ad4722-9971-11e8-0794-397f0fb18c68"
 authors = ["Michael Pichler <michael.pichler@meduniwien.ac.at>"]
-version = "1.1.0"
+version = "1.1.1"
 
 [deps]
 InteractiveCodeSearch = "54eb57ff-b09b-5185-b2f4-7a93509e494f"

@@ -199,61 +199,73 @@ end
 
 Gets the frequency vector from Touchstone data.
 """
-freqs( ts::TouchstoneData ) = map( dp -> dp.frequency, ts.data )
+freqs( dp::DataPoint ) = dp.frequency
+freqs( ts::TouchstoneData ) = map( freqs, ts.data )
 
-noiseFreqs( ts::TouchstoneData ) = map( dp -> dp.frequency, ts.noiseData )
-minNoiseFigures( ts::TouchstoneData ) = map( dp -> dp.minNoiseFigure, ts.noiseData )
-reflCoeffs( ts::TouchstoneData ) = map( dp -> dp.reflCoeff, ts.noiseData )
-effNoiseRess( ts::TouchstoneData ) = map( dp -> dp.effNoiseRes, ts.noiseData )
+noiseFreqs( ndp::NoiseDataPoint ) = ndp.frequency
+noiseFreqs( ts::TouchstoneData ) = map( noiseFreqs, ts.noiseData )
+minNoiseFigures( ndp::NoiseDataPoint ) = ndp.minNoiseFigure
+minNoiseFigures( ts::TouchstoneData ) = map( minNoiseFigures, ts.noiseData )
+reflCoeffs( ndp::NoiseDataPoint ) = ndp.reflCoeff
+reflCoeffs( ts::TouchstoneData ) = map( reflCoeffs, ts.noiseData )
+effNoiseRess( ndp::NoiseDataPoint ) = ndp.effNoiseRes
+effNoiseRess( ts::TouchstoneData ) = map( effNoiseRess, ts.noiseData )
 
 """
     params( ts )
 
 Gets the vector of parameter matrices from Touchstone data.
 """
-params( ts::TouchstoneData ) = map( dp -> dp.parameter, ts.data )
+params( dp::DataPoint ) =  dp.parameter
+params( ts::TouchstoneData ) = map( params, ts.data )
 
 """
     param( ts, p1, p2 )
 
 Gets the vector of parameters with indices p1, p2 from Touchstone data.
 """
-param( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( dp -> dp.parameter[ p1, p2 ], ts.data )
+param( dp::DataPoint, p1 = 1, p2 = 1 ) =  dp.parameter[ p1, p2 ]
+param( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( dp -> param( dp, p1, p2 ), ts.data )
 
 """
     mags( ts, p1, p2 )
 
 Gets the vector of the magnitudes of parameters with indices p1, p2 from Touchstone data.
 """
-mags( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( abs, param( ts, p1, p2 ) )
+mags( dp::DataPoint, p1 = 1, p2 = 1 ) = abs( param( dp, p1, p2 ) )
+mags( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( dp -> mags( dp, p1, p2 ), ts.data )
 
 """
     dBmags( ts, p1, p2 )
 
 Gets the vector of the magnitudes in dB of parameters with indices p1, p2 from Touchstone data.
 """
-dBmags( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( x -> 20log10( abs( x ) ), param( ts, p1, p2 ) )
+dBmags( ts::DataPoint, p1 = 1, p2 = 1 ) = 20log10( mags( dp, p1, p2 ) )
+dBmags( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( dp -> dBmags( dp, p1, p2 ), ts.data )
 
 """
     angs( ts, p1, p2 )
 
 Gets the vector of the angles in radians of parameters with indices p1, p2 from Touchstone data.
 """
-angs( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( p -> rad2deg( angle( p ) ), param( ts, p1, p2 ) )
+angs( dp::DataPoint, p1 = 1, p2 = 1 ) = rad2deg( angle( param( dp, p1, p2 ) ) )
+angs( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( dp -> angs( dp, p1, p2 ), ts.data )
 
 """
     reals( ts, p1, p2 )
 
 Gets the vector of the real parts of parameters with indices p1, p2 from Touchstone data.
 """
-reals( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( real, param( ts, p1, p2 ) )
+reals( dp::DataPoint, p1 = 1, p2 = 1 ) = real( param( dp, p1, p2 ) )
+reals( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( dp -> reals( dp, p1, p2 ), ts.data )
 
 """
     imags( ts, p1, p2 )
 
 Gets the vector of the imaginary parts of parameters with indices p1, p2 from Touchstone data.
 """
-imags( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( imag, param( ts, p1, p2 ) )
+imags( dp::DataPoint, p1 = 1, p2 = 1 ) = imag( param( dp, p1, p2 ) )
+imags( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( dp -> imags( dp, p1, p2 ), ts.data )
 
 function version( keywordparams::Dict{ Symbol, Any } )
   if haskey( keywordparams, :Version )
@@ -263,10 +275,9 @@ function version( keywordparams::Dict{ Symbol, Any } )
       error( "Unknown version." )
     end
   else
-    return( "1.0" )
+    return "1.0"
   end
 end
-
 version( ts::TouchstoneData ) = version( ts.keywordparams )
 
 #V2.0
