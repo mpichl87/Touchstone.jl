@@ -240,7 +240,7 @@ mags( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( dp -> mags( dp, p1, p2 ), ts.d
 
 Gets the vector of the magnitudes in dB of parameters with indices p1, p2 from Touchstone data.
 """
-dBmags( ts::DataPoint, p1 = 1, p2 = 1 ) = 20log10( mags( dp, p1, p2 ) )
+dBmags( dp::DataPoint, p1 = 1, p2 = 1 ) = 20log10( mags( dp, p1, p2 ) )
 dBmags( ts::TouchstoneData, p1 = 1, p2 = 1 ) = map( dp -> dBmags( dp, p1, p2 ), ts.data )
 
 """
